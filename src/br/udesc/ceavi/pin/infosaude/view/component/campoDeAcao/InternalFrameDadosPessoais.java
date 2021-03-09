@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -458,57 +459,62 @@ public class InternalFrameDadosPessoais extends javax.swing.JInternalFrame {
         tela.addPanel(new InternalFrameTelaInicial());
     }//GEN-LAST:event_btCancelarActionPerformed
 
-    private void btAlterarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAlterarActionPerformed
-        //Campos Vaziu
+    private boolean verificaCamposVazios() {
+    	//Campos Vaziu
         if (tfNome.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de Nome Vaziu");
-            return;
+            return true;
         }
         if (tfCPF.getText().replaceAll(" ", "").length() != 14) {
             JOptionPane.showMessageDialog(this, "Campo de CPF Informado De Forma Errada");
-            return;
+            return true;
         }
         if (tfRG.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de RG Vaziu");
-            return;
+            return true;
         }
         if (tfDataNascimento.getText().equals("  -  -    ")) {
             JOptionPane.showMessageDialog(this, "Campo de DataNascimento Vaziu");
-            return;
+            return true;
         }
         if (tfTelefone.getText().replaceAll(" ", "").length() != 14) {
             JOptionPane.showMessageDialog(this, "Campo de Telefone Informado De Forma Errada");
-            return;
+            return true;
         }
         if (tfEmail.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de Email Vaziu");
-            return;
+            return true;
         }
         if (tfCEP.getText().replaceAll(" ", "").length() != 9) {
             JOptionPane.showMessageDialog(this, "Campo de Cep Informado De Forma Errada");
-            return;
+            return true;
         }
         if (tfCidade.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de Cidade Vaziu");
-            return;
+            return true;
         }
         if (tfBairro.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de Bairro Vaziu");
-            return;
+            return true;
         }
         if (tfRua.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de Rua Vaziu");
-            return;
+            return true;
         }
         if (tfNumero.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de Numero Vaziu");
-            return;
+            return true;
         }
         if (tfNumeroSUS.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de Numero Do SUS Vaziu");
-            return;
+            return true;
         }
-        List<Integer> atualizar = new ArrayList<>();
+        
+        return false;
+    }
+    
+    private Object[] comparaObjetos() {
+    	List<Integer> atualizar = new ArrayList<>();
         //Comparar Com o Objeto
         StringBuilder sb = new StringBuilder("{");
         if (!tfNome.getText().equals(pessoa.getNome())) {
@@ -565,6 +571,88 @@ public class InternalFrameDadosPessoais extends javax.swing.JInternalFrame {
             atualizar.add(12);
         }
         sb.append("}");
+        
+        Object[] resultado = {null, null};
+        resultado[0] = sb;
+        resultado[1] = atualizar;
+        
+        return resultado;
+    }
+    
+    private void atualiza(List<Integer> atualizar, int i) {
+    	switch (atualizar.get(i)) {
+	        case 1:
+	            pessoa.setNome(tfNome.getText());
+	            modificarPessoa = true;
+	            break;
+	        case 2:
+	            pessoa.setCpf(tfCPF.getText());
+	            modificarPessoa = true;
+	            break;
+	        case 3:
+	            pessoa.setRegistroGeral(tfRG.getText());
+	            modificarPessoa = true;
+	            break;
+	        case 4:
+	            String[] da = tfDataNascimento.getText().split("-");
+	            String lastCrawlDate = da[2] + "-" + da[1] + "-" + da[0];
+	            Date dataNascimento = null;
+	            try {
+	                dataNascimento = new SimpleDateFormat("yyyy-MM-dd").parse(lastCrawlDate);
+	            } catch (ParseException ex) {
+	                JOptionPane.showMessageDialog(this, "Erro");
+	            }
+	            pessoa.setDataNascimento(dataNascimento);
+	            modificarPessoa = true;
+	            break;
+	        case 5:
+	            endereco.setTelefone(tfTelefone.getText());
+	            modificarEndereco = true;
+	            break;
+	        case 6:
+	            endereco.setEmail(tfEmail.getText());
+	            modificarEndereco = true;
+	            break;
+	        case 7:
+	            endereco.setCep(tfCEP.getText());
+	            modificarEndereco = true;
+	            break;
+	        case 8:
+	            endereco.setCidade(tfCidade.getText());
+	            modificarEndereco = true;
+	            break;
+	        case 9:
+	            endereco.setBairro(tfBairro.getText());
+	            modificarEndereco = true;
+	            break;
+	        case 10:
+	            endereco.setRua(tfRua.getText());
+	            modificarEndereco = true;
+	            break;
+	        case 11:
+	            endereco.setNumero(Integer.parseInt(tfNumero.getText()));
+	            modificarEndereco = true;
+	            break;
+	        case 12:
+	            pessoa.setNumeroSUS(tfNumeroSUS.getText());
+	            modificarPessoa = true;
+	            break;
+	        case 13:
+	            endereco.setComplemento(tfComplemento.getText());
+	            modificarEndereco = true;
+	            break;
+	    }
+    }
+    
+    private void btAlterarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAlterarActionPerformed
+    	if(this.verificaCamposVazios() == true) {
+    		return;
+    	}
+        
+    	Object[] resultado = comparaObjetos();
+    	StringBuilder sb = (StringBuilder) resultado[0];
+    	List<Integer> atualizar = (List<Integer>) resultado[1];
+        
         if (sb.toString().length() != 2) {
             if (sb.charAt(sb.length() - 2) == ',') {
                 sb.deleteCharAt(sb.length() - 2);
@@ -572,68 +660,7 @@ public class InternalFrameDadosPessoais extends javax.swing.JInternalFrame {
             int confirmacao = JOptionPane.showConfirmDialog(this, "Deseja Modificar Tais Dados\n" + sb.toString());
             if (confirmacao == JOptionPane.YES_OPTION) {
                 for (int i = 0; i < atualizar.size(); i++) {
-                    switch (atualizar.get(i)) {
-                        case 1:
-                            pessoa.setNome(tfNome.getText());
-                            modificarPessoa = true;
-                            break;
-                        case 2:
-                            pessoa.setCpf(tfCPF.getText());
-                            modificarPessoa = true;
-                            break;
-                        case 3:
-                            pessoa.setRegistroGeral(tfRG.getText());
-                            modificarPessoa = true;
-                            break;
-                        case 4:
-                            String[] da = tfDataNascimento.getText().split("-");
-                            String lastCrawlDate = da[2] + "-" + da[1] + "-" + da[0];
-                            Date dataNascimento = null;
-                            try {
-                                dataNascimento = new SimpleDateFormat("yyyy-MM-dd").parse(lastCrawlDate);
-                            } catch (ParseException ex) {
-                                JOptionPane.showMessageDialog(this, "Erro");
-                            }
-                            pessoa.setDataNascimento(dataNascimento);
-                            modificarPessoa = true;
-                            break;
-                        case 5:
-                            endereco.setTelefone(tfTelefone.getText());
-                            modificarEndereco = true;
-                            break;
-                        case 6:
-                            endereco.setEmail(tfEmail.getText());
-                            modificarEndereco = true;
-                            break;
-                        case 7:
-                            endereco.setCep(tfCEP.getText());
-                            modificarEndereco = true;
-                            break;
-                        case 8:
-                            endereco.setCidade(tfCidade.getText());
-                            modificarEndereco = true;
-                            break;
-                        case 9:
-                            endereco.setBairro(tfBairro.getText());
-                            modificarEndereco = true;
-                            break;
-                        case 10:
-                            endereco.setRua(tfRua.getText());
-                            modificarEndereco = true;
-                            break;
-                        case 11:
-                            endereco.setNumero(Integer.parseInt(tfNumero.getText()));
-                            modificarEndereco = true;
-                            break;
-                        case 12:
-                            pessoa.setNumeroSUS(tfNumeroSUS.getText());
-                            modificarPessoa = true;
-                            break;
-                        case 13:
-                            endereco.setComplemento(tfComplemento.getText());
-                            modificarEndereco = true;
-                            break;
-                    }
+                    atualiza(atualizar, i);
                 }
                 boolean atulizadoEndereco = false;
                 boolean atulizadoPessoa = false;
