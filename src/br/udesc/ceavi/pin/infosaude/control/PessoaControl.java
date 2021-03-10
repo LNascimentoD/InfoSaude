@@ -139,24 +139,44 @@ public class PessoaControl {
         return id;
     }
 
-
-    public boolean login(String login, String senha) throws SQLException {
-        String sqlUsuario = "select * from pessoa as p natural inner join usario where p.login = ? and p.senha = ?";
-        String sqlProfissional = "select * from pessoa as p natural inner join usario where p.login = ? and p.senha = ?";
-        String sqlInstuicao = "select * from instituicao as i where i.cnpj = ? and p.senha = ?";
-        boolean usuarioEncontrado = false;
-        PreparedStatement stmt = null;
-        try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlUsuario);
+    public boolean buscaUsuario(Usuario_Logado p, String login, String senha, PreparedStatement stmt, String sqlUsuario) throws SQLException {
+    	stmt = this.conexao.getConnection().prepareStatement(sqlUsuario);
+        stmt.setString(1, login);
+        stmt.setString(2, login);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Long id_pessoa = rs.getLong(1);
+            if (id_pessoa != null) {
+                p = new Usuario(id_pessoa,
+                        rs.getLong("id_usuario"),
+                        rs.getString("cpf"),
+                        new Date(rs.getString("data_nascimento")),
+                        rs.getString("login"),
+                        rs.getString("nome"),
+                        rs.getString("numero_sus"),
+                        rs.getString("rg"),
+                        rs.getString("senha"),
+                        Sexo.valueOf(rs.getString("sexo")));
+                Main.setParametrosUsuario(p, rs.getLong("id_endereco"));
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean buscaProfissional(Usuario_Logado p, PreparedStatement stmt, boolean usuarioEncontrado, String sqlProfissional, String login, String senha) throws SQLException {
+    	ResultSet rs = stmt.executeQuery();
+        
+    	if (!usuarioEncontrado) {
+            stmt = this.conexao.getConnection().prepareStatement(sqlProfissional);
             stmt.setString(1, login);
             stmt.setString(2, login);
-            ResultSet rs = stmt.executeQuery();
-            Usuario_Logado p = null;
+            rs = stmt.executeQuery();
             while (rs.next()) {
                 Long id_pessoa = rs.getLong(1);
                 if (id_pessoa != null) {
-                    p = new Usuario(id_pessoa,
-                            rs.getLong("id_usuario"),
+                    p = new Profissional(id_pessoa,
+                            rs.getLong("id_profissional"),
                             rs.getString("cpf"),
                             new Date(rs.getString("data_nascimento")),
                             rs.getString("login"),
@@ -166,48 +186,46 @@ public class PessoaControl {
                             rs.getString("senha"),
                             Sexo.valueOf(rs.getString("sexo")));
                     Main.setParametrosUsuario(p, rs.getLong("id_endereco"));
-                    usuarioEncontrado = true;
+                    return true;
                 }
             }
+        }
+    	
+    	return false;
+    }
+    
+    public boolean buscaInstituicao(Usuario_Logado p, PreparedStatement stmt, boolean usuarioEncontrado, String sqlInstuicao, String login, String senha) throws SQLException {
+    	ResultSet rs = stmt.executeQuery();
+    	if (!usuarioEncontrado) {
+            stmt = this.conexao.getConnection().prepareStatement(sqlInstuicao);
+            stmt.setString(1, login);
+            stmt.setString(2, login);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                Long id_instituicao = rs.getLong(1);
+                if (id_instituicao != null) {
+                    p = new Instituicao(id_instituicao, rs.getString("cnpj"), rs.getString("nome_instituicao"), rs.getString("senha"));
+                    Main.setParametrosUsuario(p, rs.getLong("id_endereco"));
+                    return true;
+                }
+            }
+        }
+    	return false;
+    }
 
-            if (!usuarioEncontrado) {
-                stmt = this.conexao.getConnection().prepareStatement(sqlProfissional);
-                stmt.setString(1, login);
-                stmt.setString(2, login);
-                rs = stmt.executeQuery();
-                while (rs.next()) {
-                    Long id_pessoa = rs.getLong(1);
-                    if (id_pessoa != null) {
-                        p = new Profissional(id_pessoa,
-                                rs.getLong("id_profissional"),
-                                rs.getString("cpf"),
-                                new Date(rs.getString("data_nascimento")),
-                                rs.getString("login"),
-                                rs.getString("nome"),
-                                rs.getString("numero_sus"),
-                                rs.getString("rg"),
-                                rs.getString("senha"),
-                                Sexo.valueOf(rs.getString("sexo")));
-                        Main.setParametrosUsuario(p, rs.getLong("id_endereco"));
-                        usuarioEncontrado = true;
-                    }
-                }
-            }
+    public boolean login(String login, String senha) throws SQLException {
+        String sqlUsuario = "select * from pessoa as p natural inner join usario where p.login = ? and p.senha = ?";
+        String sqlProfissional = "select * from pessoa as p natural inner join usario where p.login = ? and p.senha = ?";
+        String sqlInstuicao = "select * from instituicao as i where i.cnpj = ? and p.senha = ?";
+        boolean usuarioEncontrado = false;
+        PreparedStatement stmt = null;
+        Usuario_Logado p = null;
+        try {
+        	usuarioEncontrado = buscaUsuario(p, login, senha, stmt, sqlUsuario);
 
-            if (!usuarioEncontrado) {
-                stmt = this.conexao.getConnection().prepareStatement(sqlInstuicao);
-                stmt.setString(1, login);
-                stmt.setString(2, login);
-                rs = stmt.executeQuery();
-                while (rs.next()) {
-                    Long id_instituicao = rs.getLong(1);
-                    if (id_instituicao != null) {
-                        p = new Instituicao(id_instituicao, rs.getString("cnpj"), rs.getString("nome_instituicao"), rs.getString("senha"));
-                        usuarioEncontrado = true;
-                        Main.setParametrosUsuario(p, rs.getLong("id_endereco"));
-                    }
-                }
-            }
+            usuarioEncontrado = buscaProfissional(p, stmt, usuarioEncontrado, sqlProfissional, login, senha);
+            
+            usuarioEncontrado = buscaInstituicao(p, stmt, usuarioEncontrado, sqlInstuicao, login, senha);
         } catch (SQLException ex) {
             ex.printStackTrace();
             throw ex;
