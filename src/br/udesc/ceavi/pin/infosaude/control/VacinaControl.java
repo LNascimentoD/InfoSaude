@@ -200,6 +200,16 @@ public class VacinaControl {
         }
         return vacina;
     }
+    
+    public PreparedStatement criaPS(PreparedStatement stmt, Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException {
+        stmt.setLong(1, id_usuario);
+        stmt.setLong(2, id_vacina);
+        stmt.setLong(3, id_profissional);
+        stmt.setDate(4, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
+        stmt.setInt(5, dose);
+        
+        return stmt;
+    }
 
     public boolean aplicarVacina(Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException {
         String sqlQueryComCampanhaEOBS = "insert into carterinha(id_usuario,id_vacina,id_campanha,id_profissional,data_aplicacao,observacoes,dose_aplicada)"
@@ -215,35 +225,16 @@ public class VacinaControl {
         try {
             if (id_campanha == -1 && observacoes.equals("")) {
                 stmt = this.conexao.getConnection().prepareStatement(sqlQuerySIMPLE);
-                stmt.setLong(1, id_usuario);
-                stmt.setLong(2, id_vacina);
-                stmt.setLong(3, id_profissional);
-                stmt.setDate(4, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-                stmt.setInt(5, dose);
+                criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha != -1 && observacoes.equals("")) {
                 stmt = this.conexao.getConnection().prepareStatement(sqlQuery1ComCampanha);
-                stmt.setLong(1, id_usuario);
-                stmt.setLong(2, id_vacina);
-                stmt.setLong(3, id_campanha);
-                stmt.setLong(4, id_profissional);
-                stmt.setDate(5, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-                stmt.setInt(6, dose);
+                criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha == -1 && !observacoes.equals("")) {
                 stmt = this.conexao.getConnection().prepareStatement(sqlQueryComOBS);
-                stmt.setLong(1, id_usuario);
-                stmt.setLong(2, id_vacina);
-                stmt.setLong(3, id_profissional);
-                stmt.setDate(4, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-                stmt.setString(5, observacoes);
-                stmt.setInt(6, dose);
+                criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha != -1 && !observacoes.equals("")) {
                 stmt = this.conexao.getConnection().prepareStatement(sqlQueryComCampanhaEOBS);
-                stmt.setLong(1, id_usuario);
-                stmt.setLong(2, id_vacina);
-                stmt.setLong(4, id_profissional);
-                stmt.setDate(5, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-                stmt.setString(6, observacoes);
-                stmt.setInt(7, dose);
+                criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             }
             stmt.executeQuery();
             ResultSet rs = stmt.getResultSet();
