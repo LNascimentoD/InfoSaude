@@ -8,6 +8,8 @@ import br.udesc.ceavi.pin.infosaude.modelo.PublicoAlvo;
 import br.udesc.ceavi.pin.infosaude.modelo.Sexo;
 import br.udesc.ceavi.pin.infosaude.modelo.Vacina;
 import br.udesc.ceavi.pin.infosaude.principal.Main;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,12 +30,16 @@ public class VacinaControl {
     public VacinaControl() throws ClassNotFoundException, SQLException {
         this.conexao = new ConexaoPostgresJDBC();
     }
-
+    
+    public Connection conexao() {
+    	return this.conexao.getConnection();
+    }
+    
     //Obter vacina cadastrar em banco
     public List<Vacina> getVacinas() throws SQLException {
         List<Vacina> listaVacina = new ArrayList<>();
         String sqlQuery = "select * from vacina as v";
-        PreparedStatement stmt = this.conexao.getConnection().prepareStatement(sqlQuery);
+        PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery);
         stmt.execute();
         ResultSet resultSet = stmt.getResultSet();
 
@@ -49,7 +55,7 @@ public class VacinaControl {
     public List<PublicoAlvo> obterPublicoAlvo(Long id_vacina) throws SQLException {
         List<PublicoAlvo> listaPublicoAlvo = new ArrayList<>();
         String sqlQuery = "select pa.max_idade,pa.min_idade,pa.sexo from publico_alvo as pa natural inner join vacina where pa.id_vacina = ?";
-        PreparedStatement stmt = this.conexao.getConnection().prepareStatement(sqlQuery);
+        PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery);
         stmt.setLong(1, id_vacina);
 
         stmt.execute();
@@ -85,12 +91,12 @@ public class VacinaControl {
         PreparedStatement stmt = null;
         try {
             if (!obs.equals("")) {
-                stmt = this.conexao.getConnection().prepareStatement(sqlQueryComObs, Statement.RETURN_GENERATED_KEYS);
+                stmt = this.conexao().prepareStatement(sqlQueryComObs, Statement.RETURN_GENERATED_KEYS);
                 stmt.setInt(1, doses);
                 stmt.setString(2, nome);
                 stmt.setString(3, obs);
             } else {
-                stmt = this.conexao.getConnection().prepareStatement(sqlQuerySemObs, Statement.RETURN_GENERATED_KEYS);
+                stmt = this.conexao().prepareStatement(sqlQuerySemObs, Statement.RETURN_GENERATED_KEYS);
                 stmt.setInt(1, doses);
                 stmt.setString(2, nome);
             }
@@ -136,7 +142,7 @@ public class VacinaControl {
         String sqlQuery1 = "select v.id_vacina, v.nome_vacina,c.dose_aplicada,c.observacoes,c.id_profissional, p.nome_pessoa as profissional, p.id_pessoa"
                 + "from vacina as v natural inner join carterinha as c natura inner join pessoa as p"
                 + "where c.id_usuario = ?";
-        PreparedStatement stmt = this.conexao.getConnection().prepareStatement(sqlQuery1);
+        PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery1);
         stmt.setLong(1, Main.usuario.getId());
         stmt.execute();
         ResultSet resultSet = stmt.getResultSet();
@@ -178,7 +184,7 @@ public class VacinaControl {
         Vacina vacina = null;
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery);
+            stmt = this.conexao().prepareStatement(sqlQuery);
             stmt.setString(1, nome_vacina);
             stmt.executeQuery();
             ResultSet rs = stmt.getResultSet();
@@ -224,16 +230,16 @@ public class VacinaControl {
         int q = -1;
         try {
             if (id_campanha == -1 && observacoes.equals("")) {
-                stmt = this.conexao.getConnection().prepareStatement(sqlQuerySIMPLE);
+                stmt = this.conexao().prepareStatement(sqlQuerySIMPLE);
                 criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha != -1 && observacoes.equals("")) {
-                stmt = this.conexao.getConnection().prepareStatement(sqlQuery1ComCampanha);
+                stmt = this.conexao().prepareStatement(sqlQuery1ComCampanha);
                 criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha == -1 && !observacoes.equals("")) {
-                stmt = this.conexao.getConnection().prepareStatement(sqlQueryComOBS);
+                stmt = this.conexao().prepareStatement(sqlQueryComOBS);
                 criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha != -1 && !observacoes.equals("")) {
-                stmt = this.conexao.getConnection().prepareStatement(sqlQueryComCampanhaEOBS);
+                stmt = this.conexao().prepareStatement(sqlQueryComCampanhaEOBS);
                 criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             }
             stmt.executeQuery();
@@ -268,7 +274,7 @@ public class VacinaControl {
         Campanha campanha;
         Profissional prof;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sql);
+            stmt = this.conexao().prepareStatement(sql);
             stmt.setLong(1, id_usuario);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -306,7 +312,7 @@ public class VacinaControl {
         Vacina vacinaDaCampanha;
         Profissional prof;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sql);
+            stmt = this.conexao().prepareStatement(sql);
             stmt.setLong(1, id_usuario);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {

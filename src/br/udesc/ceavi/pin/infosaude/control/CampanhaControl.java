@@ -4,6 +4,8 @@ import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
 import br.udesc.ceavi.pin.infosaude.modelo.Campanha;
 import br.udesc.ceavi.pin.infosaude.modelo.Vacina;
 import br.udesc.ceavi.pin.infosaude.principal.Main;
+
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,7 +29,9 @@ public class CampanhaControl {
     public CampanhaControl() throws ClassNotFoundException, SQLException {
         this.conexao = new ConexaoPostgresJDBC();
     }
-
+    public Connection conexao() {
+    	return this.conexao.getConnection();
+    }
     public boolean validarCampos(String slogan, Date dataInicio, Date dataFim) {
         boolean a = true;
 
@@ -56,7 +60,7 @@ public class CampanhaControl {
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             stmt.setLong(1, id_instituicao);
             stmt.setLong(2, id_vacina);
             java.sql.Date dataini = new Date(campanha.getDataInicio().getTime());
@@ -94,7 +98,7 @@ public class CampanhaControl {
         String sqlQuery1 = "select c.id_campanha,c.slogam,c.id_vacina,c.data_inicio,c.data_fin"
                 + "from carterinha natural inner join campanha"
                 + "where c.id_usuario = ?";
-        PreparedStatement stmt = this.conexao.getConnection().prepareStatement(sqlQuery1);
+        PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery1);
         stmt.setLong(1, Main.usuario.getId());
         stmt.execute();
         ResultSet resultSet = stmt.getResultSet();
@@ -124,7 +128,7 @@ public class CampanhaControl {
     public List<Campanha> getCampanhas() throws SQLException {
         List<Campanha> listaDeCampanha = new ArrayList();
         String sqlQuery = "select * from campanha natural inner join vacina";
-        PreparedStatement stmt = this.conexao.getConnection().prepareStatement(sqlQuery);
+        PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery);
         stmt.execute();
         ResultSet resultSet = stmt.getResultSet();
 
@@ -157,7 +161,7 @@ public class CampanhaControl {
         PreparedStatement stmt = null;
         Campanha campanha = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery);
+            stmt = this.conexao().prepareStatement(sqlQuery);
             stmt.setLong(1, id_vacina);
             stmt.setDate(2, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
             stmt.executeQuery();

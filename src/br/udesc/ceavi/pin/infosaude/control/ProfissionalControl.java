@@ -3,6 +3,8 @@ package br.udesc.ceavi.pin.infosaude.control;
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
 import br.udesc.ceavi.pin.infosaude.modelo.Instituicao;
 import br.udesc.ceavi.pin.infosaude.modelo.Profissional;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,14 +21,17 @@ public class ProfissionalControl {
     public ProfissionalControl() throws ClassNotFoundException, SQLException {
         this.conexao = new ConexaoPostgresJDBC();
     }
-
+    public Connection conexao() {
+    	return this.conexao.getConnection();
+    }
+    
     public Long inserir(Profissional profissional, Instituicao instituicao) throws SQLException {
         Long id = null;
         String sqlQuery = "insert into profissional(id_instituicao) values(?)";
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             stmt.setLong(1, instituicao.getId());
 
             stmt.executeUpdate();
@@ -60,7 +65,7 @@ public class ProfissionalControl {
         PreparedStatement stmt = null;
         int q = -1;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery);
+            stmt = this.conexao().prepareStatement(sqlQuery);
             stmt.setString(1, login);
             stmt.setString(2, senha);
             stmt.executeQuery();

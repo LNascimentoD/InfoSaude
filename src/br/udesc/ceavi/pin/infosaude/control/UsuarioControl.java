@@ -3,6 +3,8 @@ package br.udesc.ceavi.pin.infosaude.control;
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
 import br.udesc.ceavi.pin.infosaude.modelo.Pessoa;
 import br.udesc.ceavi.pin.infosaude.modelo.Usuario;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,13 +21,17 @@ public class UsuarioControl {
     public UsuarioControl() throws ClassNotFoundException, SQLException {
         this.conexao = new ConexaoPostgresJDBC();
     }
-
+    
+    public Connection conexao() {
+    	return this.conexao.getConnection();
+    }
+    
     public boolean inserir(Usuario usuario) throws SQLException {
         Long id = null;
         String sqlQuery = "insert into usuario(id_pessoa) values(?)";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             stmt.setLong(1, usuario.getId());
             stmt.executeUpdate();
             ResultSet rs = stmt.getGeneratedKeys();
@@ -55,7 +61,7 @@ public class UsuarioControl {
         PreparedStatement stmt = null;
         Pessoa pessoa = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, cpf_usuario);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {

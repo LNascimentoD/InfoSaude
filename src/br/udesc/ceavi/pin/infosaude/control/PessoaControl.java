@@ -11,6 +11,8 @@ import br.udesc.ceavi.pin.infosaude.modelo.Sexo;
 import br.udesc.ceavi.pin.infosaude.modelo.Usuario;
 import br.udesc.ceavi.pin.infosaude.modelo.Usuario_Logado;
 import br.udesc.ceavi.pin.infosaude.principal.Main;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +32,9 @@ public class PessoaControl {
     public PessoaControl() throws ClassNotFoundException, SQLException {
         this.conexao = new ConexaoPostgresJDBC();
     }
-
+    public Connection conexao() {
+    	return this.conexao.getConnection();
+    }
     public boolean validaCampoLogin(String login) throws SQLException, DadosVaziosExcepitions, LoginJaRegistradoNaBaseDeDadosException {
         boolean a = true;
         if (login.equals("")) {
@@ -40,7 +44,7 @@ public class PessoaControl {
             String sql = "Select login from pessoa where login = ?";
             PreparedStatement stmt = null;
             try {
-                stmt = this.conexao.getConnection().prepareStatement(sql);
+                stmt = this.conexao().prepareStatement(sql);
                 stmt.setString(1, login);
 
                 ResultSet rs = stmt.executeQuery();
@@ -102,7 +106,7 @@ public class PessoaControl {
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             stmt.setLong(1, endereco.getId());
             stmt.setString(2, pessoa.getNome());
             stmt.setString(3, pessoa.getLogin());
@@ -140,7 +144,7 @@ public class PessoaControl {
     }
 
     public boolean buscaUsuario(Usuario_Logado p, String login, String senha, PreparedStatement stmt, String sqlUsuario) throws SQLException {
-    	stmt = this.conexao.getConnection().prepareStatement(sqlUsuario);
+    	stmt = this.conexao().prepareStatement(sqlUsuario);
         stmt.setString(1, login);
         stmt.setString(2, login);
         ResultSet rs = stmt.executeQuery();
@@ -168,7 +172,7 @@ public class PessoaControl {
     	ResultSet rs = stmt.executeQuery();
         
     	if (!usuarioEncontrado) {
-            stmt = this.conexao.getConnection().prepareStatement(sqlProfissional);
+            stmt = this.conexao().prepareStatement(sqlProfissional);
             stmt.setString(1, login);
             stmt.setString(2, login);
             rs = stmt.executeQuery();
@@ -197,7 +201,7 @@ public class PessoaControl {
     public boolean buscaInstituicao(Usuario_Logado p, PreparedStatement stmt, boolean usuarioEncontrado, String sqlInstuicao, String login, String senha) throws SQLException {
     	ResultSet rs = stmt.executeQuery();
     	if (!usuarioEncontrado) {
-            stmt = this.conexao.getConnection().prepareStatement(sqlInstuicao);
+            stmt = this.conexao().prepareStatement(sqlInstuicao);
             stmt.setString(1, login);
             stmt.setString(2, login);
             rs = stmt.executeQuery();
@@ -249,7 +253,7 @@ public class PessoaControl {
         String sql = "update pessoa set nome = ?, login = ?, senha = ?, cpf = ?, rg = ?, numero_sus = ?, data_nascimento = ?, sexo = ? where pessoa.id_pessoa = ?";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sql);
+            stmt = this.conexao().prepareStatement(sql);
             stmt.setString(1, pessoa.getNome());
             stmt.setString(2, pessoa.getLogin());
             stmt.setString(3, pessoa.getSenha());

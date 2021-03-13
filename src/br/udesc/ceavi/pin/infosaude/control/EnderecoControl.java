@@ -4,6 +4,8 @@ import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.DadosVaziosExcepitions;
 import br.udesc.ceavi.pin.infosaude.modelo.Endereco;
 import br.udesc.ceavi.pin.infosaude.modelo.Estado;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +24,11 @@ public class EnderecoControl {
     public EnderecoControl() throws ClassNotFoundException, SQLException {
         this.conexao = new ConexaoPostgresJDBC();
     }
-
+    
+    public Connection conexao() {
+    	return this.conexao.getConnection();
+    }
+    
     public boolean validaCampos(String bairro, String cep, String cidade, int numero, String rua) throws DadosVaziosExcepitions {
         boolean a = true;
 
@@ -56,7 +62,7 @@ public class EnderecoControl {
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, endereco.getBairro());
             stmt.setString(2, endereco.getCep());
             stmt.setString(3, endereco.getCidade());
@@ -96,7 +102,7 @@ public class EnderecoControl {
         String sqlQuery = "select * from endereco where id_endereco = ?";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery);
+            stmt = this.conexao().prepareStatement(sqlQuery);
             stmt.setLong(1, id_endereco);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -133,7 +139,7 @@ public class EnderecoControl {
         String sqlQuery = "UPDATE endereco SET bairro=?, cep=?, cidade=?, complemento=?, numero=?, rua=?, estado=?, email=?, telefone=? WHERE endereco.id_endereco = ?";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery);
+            stmt = this.conexao().prepareStatement(sqlQuery);
             stmt.setString(1, endereco.getBairro());
             stmt.setString(2, endereco.getCep());
             stmt.setString(3, endereco.getCidade());
