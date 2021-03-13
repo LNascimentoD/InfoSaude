@@ -4,6 +4,8 @@ import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.DadosVaziosExcepitions;
 import br.udesc.ceavi.pin.infosaude.modelo.Endereco;
 import br.udesc.ceavi.pin.infosaude.modelo.Instituicao;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,10 +17,10 @@ import java.sql.Statement;
  */
 public class InstituicaoControl {
 
-    private final ConexaoPostgresJDBC conexao;
-
-    public InstituicaoControl() throws ClassNotFoundException, SQLException {
-        this.conexao = new ConexaoPostgresJDBC();
+	private Connection conexao;
+    
+    public Connection conexao() throws ClassNotFoundException, SQLException{
+    	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
 
     public boolean validaCampos(String cnpj, String nome, String senha) throws DadosVaziosExcepitions {
@@ -40,13 +42,13 @@ public class InstituicaoControl {
         return a;
     }
 
-    public Long inserir(Instituicao instituicao, Endereco endereco) throws SQLException{
+    public Long inserir(Instituicao instituicao, Endereco endereco) throws SQLException, ClassNotFoundException{
         Long id = null;
         String sqlQuery = "insert into instituicao(id_endereco,cnpj,nome_instituicao,senha) values(?,?,?,?)";
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             stmt.setLong(1, endereco.getId());
             stmt.setString(2, instituicao.getCnpj());
             stmt.setString(3, instituicao.getNome());

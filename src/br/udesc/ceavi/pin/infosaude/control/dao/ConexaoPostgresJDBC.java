@@ -21,54 +21,24 @@ import java.util.logging.Logger;
  */
 public class ConexaoPostgresJDBC {
 
-    private Connection con = null;
-
     /**
      *
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    public ConexaoPostgresJDBC() throws ClassNotFoundException, SQLException {
 
-            Class.forName("org.postgresql.Driver");
+    public static Connection getConnection() throws ClassNotFoundException, SQLException{
+    	Connection con = null; 
+    	Class.forName("org.postgresql.Driver");
 
-            Properties properties = new Properties();
-            properties.put("user", "postgres");
-            properties.put("password", "123456");
+        Properties properties = new Properties();
+        properties.put("user", "postgres");
+        properties.put("password", "123456");
 
 
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/InfoSaude?ApplicationName=Projeto-InfoSaude", properties);
-            this.con.setAutoCommit(false);
+        con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/InfoSaude?ApplicationName=Projeto-InfoSaude", properties);
+        con.setAutoCommit(false);
+        return con;
     }
 
-    public Connection getConnection() {
-        return this.con;
-    }
-
-    public void close() {
-        if (this.con != null) {
-            try {
-                this.con.close();
-            } catch (SQLException error) {
-                Logger.getLogger(ConexaoPostgresJDBC.class.getName()).log(Level.SEVERE, null, error);
-            }
-        }
-    }
-
-    public void commit() throws SQLException {
-        this.con.commit();
-        this.close();
-    }
-
-    public void rollback() {
-        if (this.con != null) {
-            try {
-                this.con.rollback();
-            } catch (SQLException error) {
-                Logger.getLogger(ConexaoPostgresJDBC.class.getName()).log(Level.SEVERE, null, error);
-            } finally {
-                this.close();
-            }
-        }
-    }
 }

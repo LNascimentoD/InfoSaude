@@ -25,30 +25,14 @@ import java.util.List;
  */
 public class VacinaControl {
 
-    private final ConexaoPostgresJDBC conexao;
-
-    public VacinaControl() throws ClassNotFoundException, SQLException {
-        this.conexao = new ConexaoPostgresJDBC();
-    }
+    private Connection conexao;
     
-    public Connection conexao() {
-    	return this.conexao.getConnection();
-    }
-    
-    public  void close() {
-    	this.conexao.close();
-    }
-    
-    public void commit() throws SQLException {
-    	this.conexao.commit();
-    }
-    
-    public void rollback() {
-    	this.conexao.rollback();
+    public Connection conexao() throws ClassNotFoundException, SQLException{
+    	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
     //Obter vacina cadastrar em banco
-    public List<Vacina> getVacinas() throws SQLException {
+    public List<Vacina> getVacinas() throws SQLException, ClassNotFoundException {
         List<Vacina> listaVacina = new ArrayList<>();
         String sqlQuery = "select * from vacina as v";
         PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery);
@@ -64,7 +48,7 @@ public class VacinaControl {
     }
 
     //Obter publico alvo de vacina
-    public List<PublicoAlvo> obterPublicoAlvo(Long id_vacina) throws SQLException {
+    public List<PublicoAlvo> obterPublicoAlvo(Long id_vacina) throws SQLException, ClassNotFoundException {
         List<PublicoAlvo> listaPublicoAlvo = new ArrayList<>();
         String sqlQuery = "select pa.max_idade,pa.min_idade,pa.sexo from publico_alvo as pa natural inner join vacina where pa.id_vacina = ?";
         PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery);
@@ -88,14 +72,14 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return listaPublicoAlvo;
     }
 
     //Inserir vacina
-    public Long inserir(int doses, String nome, String obs) throws SQLException {
+    public Long inserir(int doses, String nome, String obs) throws SQLException, ClassNotFoundException {
         Long id_vacina = null;
         String sqlQueryComObs = "insert into vacina(num_doses,nome_vacina,observacao) values(?,?,?)";
         String sqlQuerySemObs = "insert into vacina(num_doses,nome_vacina) values(?,?)";
@@ -118,9 +102,9 @@ public class VacinaControl {
                 id_vacina = rs.getLong(1);
             }
             System.out.println("KEY: " + id_vacina);
-            this.commit();
+            this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -130,7 +114,7 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
 
@@ -149,7 +133,7 @@ public class VacinaControl {
     }
 
     //Obtem as Vacinas aplicadas no usuario
-    public List<Vacina> getVacinaUsuario() throws SQLException {
+    public List<Vacina> getVacinaUsuario() throws SQLException, ClassNotFoundException {
         List<Vacina> listaDeVacina = new ArrayList();
         String sqlQuery1 = "select v.id_vacina, v.nome_vacina,c.dose_aplicada,c.observacoes,c.id_profissional, p.nome_pessoa as profissional, p.id_pessoa"
                 + "from vacina as v natural inner join carterinha as c natura inner join pessoa as p"
@@ -175,7 +159,7 @@ public class VacinaControl {
             }
         }
         if (conexao != null) {
-            this.close();
+            this.conexao.close();
         }
         return listaDeVacina;
     }
@@ -190,7 +174,7 @@ public class VacinaControl {
         return -1;
     }
 
-    public Vacina getVacinaPeloNome(String nome_vacina) {
+    public Vacina getVacinaPeloNome(String nome_vacina) throws ClassNotFoundException, SQLException {
         System.out.println("Nome passado :" + nome_vacina);
         String sqlQuery = "select v.id_vacina, v.num_doses from vacina as v where v.nome_vacina ~* ?";
         Vacina vacina = null;
@@ -205,16 +189,16 @@ public class VacinaControl {
                 vacina.setId(rs.getLong(1));
                 vacina.setDose(rs.getInt(2));
             }
-            this.commit();
+            this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             error.printStackTrace();
         } finally {
             try {
                 stmt.close();
             } catch (SQLException ex) {
             }
-            this.close();
+            this.conexao.close();
         }
         return vacina;
     }
@@ -229,7 +213,7 @@ public class VacinaControl {
         return stmt;
     }
 
-    public boolean aplicarVacina(Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException {
+    public boolean aplicarVacina(Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException, ClassNotFoundException {
         String sqlQueryComCampanhaEOBS = "insert into carterinha(id_usuario,id_vacina,id_campanha,id_profissional,data_aplicacao,observacoes,dose_aplicada)"
                 + "values (?,?,?,?,?,?,?);";
         String sqlQueryComOBS = "insert into carterinha(id_usuario,id_vacina,id_profissional,data_aplicacao,observacoes,dose_aplicada)"
@@ -257,7 +241,7 @@ public class VacinaControl {
             stmt.executeQuery();
             ResultSet rs = stmt.getResultSet();
         } catch (SQLException ex) {
-            this.rollback();
+            this.conexao.rollback();
             throw ex;
         } finally {
             if (stmt != null) {
@@ -267,14 +251,14 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
 
         return true;
     }
 
-    public List<Campanha> getCampanhaDoUsuario(Long id_usuario) throws SQLException {
+    public List<Campanha> getCampanhaDoUsuario(Long id_usuario) throws SQLException, ClassNotFoundException {
         List<Campanha> lista = new ArrayList<>();
         String sql = "select p.id_pessoa,c.id_profissional,p.nome_pessoa, c.data_aplicacao,"
                 + "c.dose_aplicada, v.nome_vacina,camp.slogan,camp.data_inicio,camp.data_fim"
@@ -296,7 +280,7 @@ public class VacinaControl {
                 lista.add(campanha);
             }
         } catch (SQLException ex) {
-            this.rollback();
+            this.conexao.rollback();
             throw ex;
         } finally {
             if (stmt != null) {
@@ -306,14 +290,14 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
 
         return lista;
     }
 
-    public List<Vacina> getVacinaDoUsuario(Long id_usuario) throws SQLException {
+    public List<Vacina> getVacinaDoUsuario(Long id_usuario) throws SQLException, ClassNotFoundException {
         List<Vacina> lista = new ArrayList<>();
         String sql = "select p.id_pessoa,c.id_profissional,p.nome_pessoa, c.data_aplicacao,"
                 + "c.dose_aplicada, v.nome_vacina"
@@ -333,7 +317,7 @@ public class VacinaControl {
                 lista.add(vacinaDaCampanha);
             }
         } catch (SQLException ex) {
-            this.rollback();
+            this.conexao.rollback();
             throw ex;
         } finally {
             if (stmt != null) {
@@ -343,7 +327,7 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return lista;

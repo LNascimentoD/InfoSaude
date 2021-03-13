@@ -24,24 +24,10 @@ import javax.swing.JOptionPane;
  */
 public class CampanhaControl {
 
-    private final ConexaoPostgresJDBC conexao;
-
-    public CampanhaControl() throws ClassNotFoundException, SQLException {
-        this.conexao = new ConexaoPostgresJDBC();
-    }
-    public Connection conexao() {
-    	return this.conexao.getConnection();
-    }
-    public  void close() {
-    	this.conexao.close();
-    }
+    private Connection conexao;
     
-    public void commit() throws SQLException {
-    	this.conexao.commit();
-    }
-    
-    public void rollback() {
-    	this.conexao.rollback();
+    public Connection conexao() throws ClassNotFoundException, SQLException{
+    	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
     public boolean validarCampos(String slogan, Date dataInicio, Date dataFim) {
@@ -66,7 +52,7 @@ public class CampanhaControl {
         return a;
     }
 
-    public Long inserir(Campanha campanha, long id_instituicao, long id_vacina) throws SQLException {
+    public Long inserir(Campanha campanha, long id_instituicao, long id_vacina) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into campanha(id_instituicao,id_vacina,data_inicio,data_fim,slogam) values(?,?,?,?,?)";
 
@@ -86,9 +72,9 @@ public class CampanhaControl {
             if (rs.next()) {
                 id = rs.getLong(1);
             }
-            this.commit();
+            this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -98,14 +84,14 @@ public class CampanhaControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return id;
     }
 
     //Obtem as campanhas participada pelo usuario
-    public List<Campanha> getCampanhaUsuario() throws SQLException {
+    public List<Campanha> getCampanhaUsuario() throws SQLException, ClassNotFoundException {
         List<Campanha> listaDeCampanha = new ArrayList();
         String sqlQuery1 = "select c.id_campanha,c.slogam,c.id_vacina,c.data_inicio,c.data_fin"
                 + "from carterinha natural inner join campanha"
@@ -131,13 +117,13 @@ public class CampanhaControl {
             }
         }
         if (conexao != null) {
-            this.close();
+            this.conexao.close();
         }
         return listaDeCampanha;
     }
 
 //Obtem todas as campanha
-    public List<Campanha> getCampanhas() throws SQLException {
+    public List<Campanha> getCampanhas() throws SQLException, ClassNotFoundException {
         List<Campanha> listaDeCampanha = new ArrayList();
         String sqlQuery = "select * from campanha natural inner join vacina";
         PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery);
@@ -162,12 +148,12 @@ public class CampanhaControl {
             }
         }
         if (conexao != null) {
-            this.close();
+            this.conexao.close();
         }
         return listaDeCampanha;
     }
 
-    public Campanha buscarCampanhaPorIdVacina(Long id_vacina) {
+    public Campanha buscarCampanhaPorIdVacina(Long id_vacina) throws ClassNotFoundException, SQLException {
         String sqlQuery = "select c.id_campanha, c.slogan, c.data_fim, c.data_inicio, v.nome_vacina "
                 + "from campanha as c natural inner join vacina as v where c.id_vacina = ? and c.data_fim > ?";
         PreparedStatement stmt = null;
@@ -189,9 +175,9 @@ public class CampanhaControl {
                 vacina.setVacina(rs.getString(5));
                 campanha.setVacina(vacina);
             }
-            this.commit();
+            this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             error.printStackTrace();
         } finally {
             if (stmt != null) {
@@ -201,7 +187,7 @@ public class CampanhaControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return campanha;

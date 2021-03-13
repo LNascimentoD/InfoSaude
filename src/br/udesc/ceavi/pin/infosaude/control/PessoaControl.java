@@ -27,28 +27,13 @@ import java.util.logging.Logger;
  */
 public class PessoaControl {
 
-    private final ConexaoPostgresJDBC conexao;
-
-    public PessoaControl() throws ClassNotFoundException, SQLException {
-        this.conexao = new ConexaoPostgresJDBC();
-    }
-    public Connection conexao() {
-    	return this.conexao.getConnection();
+	private Connection conexao;
+    
+    public Connection conexao() throws ClassNotFoundException, SQLException{
+    	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
-    public  void close() {
-    	this.conexao.close();
-    }
-    
-    public void commit() throws SQLException {
-    	this.conexao.commit();
-    }
-    
-    public void rollback() {
-    	this.conexao.rollback();
-    }
-    
-    public boolean validaCampoLogin(String login) throws SQLException, DadosVaziosExcepitions, LoginJaRegistradoNaBaseDeDadosException {
+    public boolean validaCampoLogin(String login) throws SQLException, DadosVaziosExcepitions, LoginJaRegistradoNaBaseDeDadosException, ClassNotFoundException {
         boolean a = true;
         if (login.equals("")) {
             a = false;
@@ -68,9 +53,9 @@ public class PessoaControl {
                         throw new LoginJaRegistradoNaBaseDeDadosException();
                     }
                 }
-                this.commit();
+                this.conexao.commit();
             } catch (SQLException error) {
-                this.rollback();
+                this.conexao.rollback();
                 throw error;
             } finally {
                 if (stmt != null) {
@@ -80,7 +65,7 @@ public class PessoaControl {
                     }
                 }
                 if (this.conexao != null) {
-                    this.close();
+                    this.conexao.close();
                 }
             }
             return a;
@@ -113,7 +98,7 @@ public class PessoaControl {
         return a;
     }
 
-    public Long inserir(Pessoa pessoa, Endereco endereco) throws SQLException {
+    public Long inserir(Pessoa pessoa, Endereco endereco) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into pessoa(id_endereco,nome_pessoa,login,senha,cpf,rg,numero_sus,data_nascimento,sexo) values(?,?,?,?,?,?,?,?,?)";
 
@@ -137,9 +122,9 @@ public class PessoaControl {
                 id = rs.getLong(1);
             }
             pessoa.setId(id);
-            this.commit();
+            this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -149,14 +134,14 @@ public class PessoaControl {
                 }
             }
             if (this.conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
 
         return id;
     }
 
-    public boolean buscaUsuario(Usuario_Logado p, String login, String senha, PreparedStatement stmt, String sqlUsuario) throws SQLException {
+    public boolean buscaUsuario(Usuario_Logado p, String login, String senha, PreparedStatement stmt, String sqlUsuario) throws SQLException, ClassNotFoundException {
     	stmt = this.conexao().prepareStatement(sqlUsuario);
         stmt.setString(1, login);
         stmt.setString(2, login);
@@ -181,7 +166,7 @@ public class PessoaControl {
         return false;
     }
     
-    public boolean buscaProfissional(Usuario_Logado p, PreparedStatement stmt, boolean usuarioEncontrado, String sqlProfissional, String login, String senha) throws SQLException {
+    public boolean buscaProfissional(Usuario_Logado p, PreparedStatement stmt, boolean usuarioEncontrado, String sqlProfissional, String login, String senha) throws SQLException, ClassNotFoundException {
     	ResultSet rs = stmt.executeQuery();
         
     	if (!usuarioEncontrado) {
@@ -211,7 +196,7 @@ public class PessoaControl {
     	return false;
     }
     
-    public boolean buscaInstituicao(Usuario_Logado p, PreparedStatement stmt, boolean usuarioEncontrado, String sqlInstuicao, String login, String senha) throws SQLException {
+    public boolean buscaInstituicao(Usuario_Logado p, PreparedStatement stmt, boolean usuarioEncontrado, String sqlInstuicao, String login, String senha) throws SQLException, ClassNotFoundException {
     	ResultSet rs = stmt.executeQuery();
     	if (!usuarioEncontrado) {
             stmt = this.conexao().prepareStatement(sqlInstuicao);
@@ -230,7 +215,7 @@ public class PessoaControl {
     	return false;
     }
 
-    public boolean login(String login, String senha) throws SQLException {
+    public boolean login(String login, String senha) throws SQLException, ClassNotFoundException {
         String sqlUsuario = "select * from pessoa as p natural inner join usario where p.login = ? and p.senha = ?";
         String sqlProfissional = "select * from pessoa as p natural inner join usario where p.login = ? and p.senha = ?";
         String sqlInstuicao = "select * from instituicao as i where i.cnpj = ? and p.senha = ?";
@@ -254,14 +239,14 @@ public class PessoaControl {
                 }
             }
             if (this.conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
 
         return true;
     }
 
-    public boolean update(Pessoa pessoa) throws SQLException {
+    public boolean update(Pessoa pessoa) throws SQLException, ClassNotFoundException {
         boolean atualizado = false;
         String sql = "update pessoa set nome = ?, login = ?, senha = ?, cpf = ?, rg = ?, numero_sus = ?, data_nascimento = ?, sexo = ? where pessoa.id_pessoa = ?";
         PreparedStatement stmt = null;
@@ -278,7 +263,7 @@ public class PessoaControl {
             stmt.setString(7, pessoa.getSexo().toString());
             stmt.setLong(8, pessoa.getId());
             atualizado = (stmt.executeUpdate() == 1);
-            this.commit();
+            this.conexao.commit();
         } catch (SQLException ex) {
             ex.printStackTrace();
             throw ex;
@@ -290,7 +275,7 @@ public class PessoaControl {
                 }
             }
             if (this.conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return atualizado;

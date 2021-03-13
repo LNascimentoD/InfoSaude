@@ -451,8 +451,6 @@ public class InternalFrameCadastrarInstituicao extends javax.swing.JInternalFram
             enderecoControl.validaCampos(bairro, cep, cidade, numeroCasa, rua);
             instituicaoControl = new InstituicaoControl();
             instituicaoControl.validaCampos(cnpj, nome, senha);
-        } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(InternalFrameCadastrarInstituicao.class.getName()).log(Level.SEVERE, null, ex);
         } catch (DadosVaziosExcepitions ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }

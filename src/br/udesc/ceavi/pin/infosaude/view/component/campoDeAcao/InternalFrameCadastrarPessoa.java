@@ -563,7 +563,7 @@ public class InternalFrameCadastrarPessoa extends javax.swing.JInternalFrame {
                 JOptionPane.showMessageDialog(null, ex.getMessage());
                 return;
             }
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro no Nosso Sistema de Banco de Dados1");
             return;
@@ -614,35 +614,29 @@ public class InternalFrameCadastrarPessoa extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(this, "Login Não Validado");
             return;
         }
-        try {
-            controladorEndereco = new EnderecoControl();
-            try {
-                controladorEndereco.validaCampos(bairro, cep, cidade, numeroCasa, rua);
-                controladorPessoa.validaCampos(cpf, nome, numeroSUS, rg, senha);
-            } catch (DadosVaziosExcepitions ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage());
-                return;
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Erro no Nosso Sistema de Banco de Dados");
-                return;
-            }
-            try {
-                controladorEndereco.inserir(endereco);
-                controladorPessoa = new PessoaControl();
-                controladorPessoa.inserir(pessoa, endereco);
-                Usuario usuario = new Usuario(pessoa);
-                UsuarioControl controladorUsuario = new UsuarioControl();
-                controladorUsuario.inserir(usuario);
-            } catch (ClassNotFoundException | SQLException ex) {
-                ex.printStackTrace();
-                return;
-            }
-        } catch (ClassNotFoundException | SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Erro no Nosso Sistema de Banco de Dados");
-            return;
-        }
+        controladorEndereco = new EnderecoControl();
+		try {
+		    controladorEndereco.validaCampos(bairro, cep, cidade, numeroCasa, rua);
+		    controladorPessoa.validaCampos(cpf, nome, numeroSUS, rg, senha);
+		} catch (DadosVaziosExcepitions ex) {
+		    JOptionPane.showMessageDialog(this, ex.getMessage());
+		    return;
+		} catch (SQLException ex) {
+		    ex.printStackTrace();
+		    JOptionPane.showMessageDialog(null, "Erro no Nosso Sistema de Banco de Dados");
+		    return;
+		}
+		try {
+		    controladorEndereco.inserir(endereco);
+		    controladorPessoa = new PessoaControl();
+		    controladorPessoa.inserir(pessoa, endereco);
+		    Usuario usuario = new Usuario(pessoa);
+		    UsuarioControl controladorUsuario = new UsuarioControl();
+		    controladorUsuario.inserir(usuario);
+		} catch (ClassNotFoundException | SQLException ex) {
+		    ex.printStackTrace();
+		    return;
+		}
 
     }//GEN-LAST:event_btnCadastrarActionPerformed
 

@@ -19,22 +19,10 @@ import java.util.logging.Logger;
  */
 public class EnderecoControl {
 
-    private final ConexaoPostgresJDBC conexao;
-
-    public EnderecoControl() throws ClassNotFoundException, SQLException {
-        this.conexao = new ConexaoPostgresJDBC();
-    }
+	private Connection conexao;
     
-    public Connection conexao() {
-    	return this.conexao.getConnection();
-    }
-    
-    public  void close() {
-    	this.conexao.close();
-    }
-    
-    public void rollback() {
-    	this.conexao.rollback();
+    public Connection conexao() throws ClassNotFoundException, SQLException{
+    	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
     public boolean validaCampos(String bairro, String cep, String cidade, int numero, String rua) throws DadosVaziosExcepitions {
@@ -64,7 +52,7 @@ public class EnderecoControl {
         return a;
     }
 
-    public Long inserir(Endereco endereco) throws SQLException {
+    public Long inserir(Endereco endereco) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into endereco(bairro,cep,cidade,complemento,numero,rua,estado,email,telefone) values(?,?,?,?,?,?,?,?,?)";
 
@@ -89,7 +77,7 @@ public class EnderecoControl {
             }
             this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -99,13 +87,13 @@ public class EnderecoControl {
                 }
             }
             if (this.conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return id;
     }
 
-    public Endereco getEndereco(Long id_endereco) throws SQLException {
+    public Endereco getEndereco(Long id_endereco) throws SQLException, ClassNotFoundException {
         Endereco endereco = null;
         String sqlQuery = "select * from endereco where id_endereco = ?";
         PreparedStatement stmt = null;
@@ -126,7 +114,7 @@ public class EnderecoControl {
                 endereco.setId(id_endereco);
             }
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -136,13 +124,13 @@ public class EnderecoControl {
                 }
             }
             if (this.conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return endereco;
     }
 
-    public boolean update(Endereco endereco) throws SQLException {
+    public boolean update(Endereco endereco) throws SQLException, ClassNotFoundException {
         boolean atualizado = false;
         String sqlQuery = "UPDATE endereco SET bairro=?, cep=?, cidade=?, complemento=?, numero=?, rua=?, estado=?, email=?, telefone=? WHERE endereco.id_endereco = ?";
         PreparedStatement stmt = null;
@@ -162,7 +150,7 @@ public class EnderecoControl {
             stmt.setLong(10, endereco.getId());
             atualizado = stmt.executeUpdate() == 1;
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -172,7 +160,7 @@ public class EnderecoControl {
                 }
             }
             if (this.conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return atualizado;

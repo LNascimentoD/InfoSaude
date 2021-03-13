@@ -16,29 +16,13 @@ import java.sql.Statement;
  */
 public class UsuarioControl {
 
-    private final ConexaoPostgresJDBC conexao;
-
-    public UsuarioControl() throws ClassNotFoundException, SQLException {
-        this.conexao = new ConexaoPostgresJDBC();
+	private Connection conexao;
+    
+    public Connection conexao() throws ClassNotFoundException, SQLException{
+    	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
-    public Connection conexao() {
-    	return this.conexao.getConnection();
-    }
-    
-    public  void close() {
-    	this.conexao.close();
-    }
-    
-    public void commit() throws SQLException {
-    	this.conexao.commit();
-    }
-    
-    public void rollback() {
-    	this.conexao.rollback();
-    }
-    
-    public boolean inserir(Usuario usuario) throws SQLException {
+    public boolean inserir(Usuario usuario) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into usuario(id_pessoa) values(?)";
         PreparedStatement stmt = null;
@@ -50,9 +34,9 @@ public class UsuarioControl {
             if (rs.next()) {
                 id = rs.getLong("id_usuario");
             }
-            this.commit();
+            this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -62,13 +46,13 @@ public class UsuarioControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return true;
     }
 
-    public Pessoa buscarPeloCPF(String cpf_usuario) throws SQLException {
+    public Pessoa buscarPeloCPF(String cpf_usuario) throws SQLException, ClassNotFoundException {
         String sqlQuery = "select u.id_usuario, p.nome_pessoa, p.numero_sus from usuario as u natural inner join pessoa as p where p.cpf = ?";
         PreparedStatement stmt = null;
         Pessoa pessoa = null;
@@ -82,9 +66,9 @@ public class UsuarioControl {
                 pessoa.setNome(rs.getString(2));
                 pessoa.setNumeroSUS(rs.getString(3));
             }
-            this.commit();
+            this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             error.printStackTrace();
             throw error;
         } finally {
@@ -95,7 +79,7 @@ public class UsuarioControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
         return pessoa;

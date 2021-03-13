@@ -16,24 +16,13 @@ import java.sql.Statement;
  */
 public class ProfissionalControl {
 
-    private final ConexaoPostgresJDBC conexao;
-
-    public ProfissionalControl() throws ClassNotFoundException, SQLException {
-        this.conexao = new ConexaoPostgresJDBC();
-    }
-    public Connection conexao() {
-    	return this.conexao.getConnection();
+	private Connection conexao;
+    
+    public Connection conexao() throws ClassNotFoundException, SQLException{
+    	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
-    public  void close() {
-    	this.conexao.close();
-    }
-    
-    public void rollback() {
-    	this.conexao.rollback();
-    }
-    
-    public Long inserir(Profissional profissional, Instituicao instituicao) throws SQLException {
+    public Long inserir(Profissional profissional, Instituicao instituicao) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into profissional(id_instituicao) values(?)";
 
@@ -50,7 +39,7 @@ public class ProfissionalControl {
 
             this.conexao.commit();
         } catch (SQLException error) {
-            this.rollback();
+            this.conexao.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -60,14 +49,14 @@ public class ProfissionalControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
 
         return id;
     }
 
-    public Long getAcessoProfissional(String login, String senha) throws SQLException {
+    public Long getAcessoProfissional(String login, String senha) throws SQLException, ClassNotFoundException {
         Long id_profissional = -1l;
         String sqlQuery = "select prof.id_profissional from pessoa as p natural inner join profissional as prof where p.login = ? and p.senha = ?";
         PreparedStatement stmt = null;
@@ -82,7 +71,7 @@ public class ProfissionalControl {
                 id_profissional = rs.getLong("id_profissional");
             }
         } catch (SQLException ex) {
-            this.rollback();
+            this.conexao.rollback();
             throw ex;
         } finally {
             if (stmt != null) {
@@ -92,7 +81,7 @@ public class ProfissionalControl {
                 }
             }
             if (conexao != null) {
-                this.close();
+                this.conexao.close();
             }
         }
 

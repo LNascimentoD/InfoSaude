@@ -2,6 +2,8 @@ package br.udesc.ceavi.pin.infosaude.control;
 
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
 import br.udesc.ceavi.pin.infosaude.modelo.PublicoAlvo;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,18 +15,18 @@ import java.sql.Statement;
  */
 public class PublicoAlvoControl {
 
-    private final ConexaoPostgresJDBC conexao;
-
-    public PublicoAlvoControl() throws ClassNotFoundException, SQLException {
-        this.conexao = new ConexaoPostgresJDBC();
+    private Connection conexao;
+    
+    public Connection conexao() throws ClassNotFoundException, SQLException{
+    	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
 
-    public Long inserir(PublicoAlvo publicoAlvo, long id_vacina) throws SQLException {
+    public Long inserir(PublicoAlvo publicoAlvo, long id_vacina) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into publico_alvo(id_vacina,min_idade,max_idade,sexo) values(?,?,?,?)";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao.getConnection().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             stmt.setLong(1, id_vacina);
             stmt.setInt(2, publicoAlvo.getMinIdade());
             stmt.setInt(3, publicoAlvo.getMaxIdade());
