@@ -90,7 +90,7 @@ public class ListenerMenuUsuarioProfissional implements Listener {
 
     }
     
-    private addPanel(JInternalFrame novoFrame) {
+    private void addPanel(JInternalFrame novoFrame) {
     	tela.addPanel(novoFrame);
     }
 

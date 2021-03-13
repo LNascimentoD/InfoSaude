@@ -78,7 +78,7 @@ public class ListenerMenuSemUsuario implements Listener {
         }
     }
     
-    private class addPanel(JInternalFrame novoFrame) {
+    private void addPanel(JInternalFrame novoFrame) {
     	tela.addPanel(novoFrame);
     }
 }

@@ -5,6 +5,8 @@ import br.udesc.ceavi.pin.infosaude.view.frame.FramePrincipal;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.sql.SQLException;
+
+import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 
 /**

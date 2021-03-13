@@ -88,7 +88,7 @@ public class ListenerMenuUsuarioComum implements Listener {
                     + "Email: infosaude@contato.com");
         }
     }
-    private class addPanel(JInternalFrame novoFrame) {
+    private void addPanel(JInternalFrame novoFrame) {
     	tela.addPanel(novoFrame);
     }
 }
