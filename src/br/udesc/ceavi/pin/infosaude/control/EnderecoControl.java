@@ -29,6 +29,14 @@ public class EnderecoControl {
     	return this.conexao.getConnection();
     }
     
+    public  void close() {
+    	this.conexao.close();
+    }
+    
+    public void rollback() {
+    	this.conexao.rollback();
+    }
+    
     public boolean validaCampos(String bairro, String cep, String cidade, int numero, String rua) throws DadosVaziosExcepitions {
         boolean a = true;
 
@@ -81,7 +89,7 @@ public class EnderecoControl {
             }
             this.conexao.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -91,7 +99,7 @@ public class EnderecoControl {
                 }
             }
             if (this.conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return id;
@@ -118,7 +126,7 @@ public class EnderecoControl {
                 endereco.setId(id_endereco);
             }
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -128,7 +136,7 @@ public class EnderecoControl {
                 }
             }
             if (this.conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return endereco;
@@ -154,7 +162,7 @@ public class EnderecoControl {
             stmt.setLong(10, endereco.getId());
             atualizado = stmt.executeUpdate() == 1;
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -164,7 +172,7 @@ public class EnderecoControl {
                 }
             }
             if (this.conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return atualizado;

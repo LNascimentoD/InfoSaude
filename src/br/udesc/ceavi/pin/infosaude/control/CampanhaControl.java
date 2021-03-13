@@ -32,6 +32,18 @@ public class CampanhaControl {
     public Connection conexao() {
     	return this.conexao.getConnection();
     }
+    public  void close() {
+    	this.conexao.close();
+    }
+    
+    public void commit() throws SQLException {
+    	this.conexao.commit();
+    }
+    
+    public void rollback() {
+    	this.conexao.rollback();
+    }
+    
     public boolean validarCampos(String slogan, Date dataInicio, Date dataFim) {
         boolean a = true;
 
@@ -74,9 +86,9 @@ public class CampanhaControl {
             if (rs.next()) {
                 id = rs.getLong(1);
             }
-            this.conexao.commit();
+            this.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -86,7 +98,7 @@ public class CampanhaControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return id;
@@ -119,7 +131,7 @@ public class CampanhaControl {
             }
         }
         if (conexao != null) {
-            this.conexao.close();
+            this.close();
         }
         return listaDeCampanha;
     }
@@ -150,7 +162,7 @@ public class CampanhaControl {
             }
         }
         if (conexao != null) {
-            this.conexao.close();
+            this.close();
         }
         return listaDeCampanha;
     }
@@ -177,9 +189,9 @@ public class CampanhaControl {
                 vacina.setVacina(rs.getString(5));
                 campanha.setVacina(vacina);
             }
-            this.conexao.commit();
+            this.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             error.printStackTrace();
         } finally {
             if (stmt != null) {
@@ -189,7 +201,7 @@ public class CampanhaControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return campanha;

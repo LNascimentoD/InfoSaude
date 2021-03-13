@@ -35,6 +35,19 @@ public class PessoaControl {
     public Connection conexao() {
     	return this.conexao.getConnection();
     }
+    
+    public  void close() {
+    	this.conexao.close();
+    }
+    
+    public void commit() throws SQLException {
+    	this.conexao.commit();
+    }
+    
+    public void rollback() {
+    	this.conexao.rollback();
+    }
+    
     public boolean validaCampoLogin(String login) throws SQLException, DadosVaziosExcepitions, LoginJaRegistradoNaBaseDeDadosException {
         boolean a = true;
         if (login.equals("")) {
@@ -55,9 +68,9 @@ public class PessoaControl {
                         throw new LoginJaRegistradoNaBaseDeDadosException();
                     }
                 }
-                this.conexao.commit();
+                this.commit();
             } catch (SQLException error) {
-                this.conexao.rollback();
+                this.rollback();
                 throw error;
             } finally {
                 if (stmt != null) {
@@ -67,7 +80,7 @@ public class PessoaControl {
                     }
                 }
                 if (this.conexao != null) {
-                    this.conexao.close();
+                    this.close();
                 }
             }
             return a;
@@ -124,9 +137,9 @@ public class PessoaControl {
                 id = rs.getLong(1);
             }
             pessoa.setId(id);
-            this.conexao.commit();
+            this.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -136,7 +149,7 @@ public class PessoaControl {
                 }
             }
             if (this.conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
 
@@ -241,7 +254,7 @@ public class PessoaControl {
                 }
             }
             if (this.conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
 
@@ -265,7 +278,7 @@ public class PessoaControl {
             stmt.setString(7, pessoa.getSexo().toString());
             stmt.setLong(8, pessoa.getId());
             atualizado = (stmt.executeUpdate() == 1);
-            this.conexao.commit();
+            this.commit();
         } catch (SQLException ex) {
             ex.printStackTrace();
             throw ex;
@@ -277,7 +290,7 @@ public class PessoaControl {
                 }
             }
             if (this.conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return atualizado;

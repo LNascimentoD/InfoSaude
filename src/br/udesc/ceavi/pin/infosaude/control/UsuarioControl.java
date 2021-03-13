@@ -26,6 +26,18 @@ public class UsuarioControl {
     	return this.conexao.getConnection();
     }
     
+    public  void close() {
+    	this.conexao.close();
+    }
+    
+    public void commit() throws SQLException {
+    	this.conexao.commit();
+    }
+    
+    public void rollback() {
+    	this.conexao.rollback();
+    }
+    
     public boolean inserir(Usuario usuario) throws SQLException {
         Long id = null;
         String sqlQuery = "insert into usuario(id_pessoa) values(?)";
@@ -38,9 +50,9 @@ public class UsuarioControl {
             if (rs.next()) {
                 id = rs.getLong("id_usuario");
             }
-            this.conexao.commit();
+            this.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -50,7 +62,7 @@ public class UsuarioControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return true;
@@ -70,9 +82,9 @@ public class UsuarioControl {
                 pessoa.setNome(rs.getString(2));
                 pessoa.setNumeroSUS(rs.getString(3));
             }
-            this.conexao.commit();
+            this.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             error.printStackTrace();
             throw error;
         } finally {
@@ -83,7 +95,7 @@ public class UsuarioControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return pessoa;

@@ -25,6 +25,14 @@ public class ProfissionalControl {
     	return this.conexao.getConnection();
     }
     
+    public  void close() {
+    	this.conexao.close();
+    }
+    
+    public void rollback() {
+    	this.conexao.rollback();
+    }
+    
     public Long inserir(Profissional profissional, Instituicao instituicao) throws SQLException {
         Long id = null;
         String sqlQuery = "insert into profissional(id_instituicao) values(?)";
@@ -42,7 +50,7 @@ public class ProfissionalControl {
 
             this.conexao.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -52,7 +60,7 @@ public class ProfissionalControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
 
@@ -74,7 +82,7 @@ public class ProfissionalControl {
                 id_profissional = rs.getLong("id_profissional");
             }
         } catch (SQLException ex) {
-            this.conexao.rollback();
+            this.rollback();
             throw ex;
         } finally {
             if (stmt != null) {
@@ -84,7 +92,7 @@ public class ProfissionalControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
 

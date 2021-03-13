@@ -35,6 +35,18 @@ public class VacinaControl {
     	return this.conexao.getConnection();
     }
     
+    public  void close() {
+    	this.conexao.close();
+    }
+    
+    public void commit() throws SQLException {
+    	this.conexao.commit();
+    }
+    
+    public void rollback() {
+    	this.conexao.rollback();
+    }
+    
     //Obter vacina cadastrar em banco
     public List<Vacina> getVacinas() throws SQLException {
         List<Vacina> listaVacina = new ArrayList<>();
@@ -76,7 +88,7 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return listaPublicoAlvo;
@@ -106,9 +118,9 @@ public class VacinaControl {
                 id_vacina = rs.getLong(1);
             }
             System.out.println("KEY: " + id_vacina);
-            this.conexao.commit();
+            this.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             throw error;
         } finally {
             if (stmt != null) {
@@ -118,7 +130,7 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
 
@@ -163,7 +175,7 @@ public class VacinaControl {
             }
         }
         if (conexao != null) {
-            this.conexao.close();
+            this.close();
         }
         return listaDeVacina;
     }
@@ -193,16 +205,16 @@ public class VacinaControl {
                 vacina.setId(rs.getLong(1));
                 vacina.setDose(rs.getInt(2));
             }
-            this.conexao.commit();
+            this.commit();
         } catch (SQLException error) {
-            this.conexao.rollback();
+            this.rollback();
             error.printStackTrace();
         } finally {
             try {
                 stmt.close();
             } catch (SQLException ex) {
             }
-            this.conexao.close();
+            this.close();
         }
         return vacina;
     }
@@ -245,7 +257,7 @@ public class VacinaControl {
             stmt.executeQuery();
             ResultSet rs = stmt.getResultSet();
         } catch (SQLException ex) {
-            this.conexao.rollback();
+            this.rollback();
             throw ex;
         } finally {
             if (stmt != null) {
@@ -255,7 +267,7 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
 
@@ -284,7 +296,7 @@ public class VacinaControl {
                 lista.add(campanha);
             }
         } catch (SQLException ex) {
-            this.conexao.rollback();
+            this.rollback();
             throw ex;
         } finally {
             if (stmt != null) {
@@ -294,7 +306,7 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
 
@@ -321,7 +333,7 @@ public class VacinaControl {
                 lista.add(vacinaDaCampanha);
             }
         } catch (SQLException ex) {
-            this.conexao.rollback();
+            this.rollback();
             throw ex;
         } finally {
             if (stmt != null) {
@@ -331,7 +343,7 @@ public class VacinaControl {
                 }
             }
             if (conexao != null) {
-                this.conexao.close();
+                this.close();
             }
         }
         return lista;
