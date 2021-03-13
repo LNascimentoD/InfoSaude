@@ -41,7 +41,7 @@ public class ListenerMenuSemUsuario implements Listener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            tela.addPanel(new InternalFrameTelaInicial());
+            addPanel(new InternalFrameTelaInicial());
         }
     }
 
@@ -49,7 +49,7 @@ public class ListenerMenuSemUsuario implements Listener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            tela.addPanel(new InternalFrameLogin(tela));
+            addPanel(new InternalFrameLogin(tela));
         }
     }
 
@@ -57,7 +57,7 @@ public class ListenerMenuSemUsuario implements Listener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            tela.addPanel(new InternalFrameCadastrarPessoa());
+            addPanel(new InternalFrameCadastrarPessoa());
         }
     }
 
@@ -65,7 +65,7 @@ public class ListenerMenuSemUsuario implements Listener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            tela.addPanel(new InternalFrameCadastrarInstituicao());
+            addPanel(new InternalFrameCadastrarInstituicao());
         }
     }
 
@@ -76,5 +76,9 @@ public class ListenerMenuSemUsuario implements Listener {
             JOptionPane.showMessageDialog(tela, "Telefone : (000) 0800-000 \n"
                     + "Email: infosaude@contato.com");
         }
+    }
+    
+    private class addPanel(JInternalFrame novoFrame) {
+    	tela.addPanel(novoFrame);
     }
 }

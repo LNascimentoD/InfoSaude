@@ -43,7 +43,7 @@ public class ListenerMenuUsuarioIntituicao implements Listener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            tela.addPanel(new InternalFrameTelaInicial());
+            addPanel(new InternalFrameTelaInicial());
         }
     }
 
@@ -51,7 +51,7 @@ public class ListenerMenuUsuarioIntituicao implements Listener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            tela.addPanel(new InternalFrameVacina());
+            addPanel(new InternalFrameVacina());
         }
     }
 
@@ -59,7 +59,7 @@ public class ListenerMenuUsuarioIntituicao implements Listener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            tela.addPanel(new InternalFrameCadastrarPessoa());
+            addPanel(new InternalFrameCadastrarPessoa());
         }
     }
 
@@ -88,6 +88,10 @@ public class ListenerMenuUsuarioIntituicao implements Listener {
                     + "Email: infosaude@contato.com");
         }
 
+    }
+    
+    private class addPanel(JInternalFrame novoFrame) {
+    	tela.addPanel(novoFrame);
     }
 
 }

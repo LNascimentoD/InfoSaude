@@ -178,7 +178,7 @@ public class InternalFrameLogin extends javax.swing.JInternalFrame {
             PessoaControl controladorDePessoa = new PessoaControl();
             boolean logado = controladorDePessoa.login(tfUsuario.getText(), String.copyValueOf(tfSenha.getPassword()));
             if (logado) {
-                frame.addPanel(new InternalFrameTelaInicial());
+                addPanel(new InternalFrameTelaInicial());
             }
         } catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();
@@ -187,7 +187,7 @@ public class InternalFrameLogin extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnRegistarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistarActionPerformed
-        frame.addPanel(new InternalFrameCadastrarPessoa());
+        addPanel(new InternalFrameCadastrarPessoa());
     }//GEN-LAST:event_btnRegistarActionPerformed
 
     private void btnRecuperarSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRecuperarSenhaActionPerformed
@@ -205,4 +205,8 @@ public class InternalFrameLogin extends javax.swing.JInternalFrame {
     private javax.swing.JPasswordField tfSenha;
     private javax.swing.JTextField tfUsuario;
     // End of variables declaration//GEN-END:variables
+    
+    private void addPanel(JInternalFrame novoFrame) {
+    	frame.addPanel(novoFrame);
+    }
 }
