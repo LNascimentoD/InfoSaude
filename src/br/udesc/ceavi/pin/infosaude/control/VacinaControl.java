@@ -31,6 +31,18 @@ public class VacinaControl {
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
+    public String getResultSetString(ResultSet rs, String campo) throws SQLException {
+    	return rs.getString(campo);
+    }
+    
+    public long getResultSetLong(ResultSet rs, String campo) throws SQLException {
+    	return rs.getLong(campo);
+    }
+    
+    public int getResultSetInt(ResultSet rs, String campo) throws SQLException {
+    	return rs.getInt(campo);
+    }
+    
     //Obter vacina cadastrar em banco
     public List<Vacina> getVacinas() throws SQLException, ClassNotFoundException {
         List<Vacina> listaVacina = new ArrayList<>();
@@ -40,8 +52,8 @@ public class VacinaControl {
         ResultSet resultSet = stmt.getResultSet();
 
         while (resultSet.next()) {
-            Vacina vacina = new Vacina(resultSet.getLong("id_vacina"),
-                    resultSet.getInt("num_doses"), resultSet.getString("nome_vacina"), resultSet.getString("observacao"));
+            Vacina vacina = new Vacina(getResultSetLong(resultSet, "id_vacina"),
+                    getResultSetInt(resultSet, "num_doses"), getResultSetString(resultSet, "nome_vacina"), getResultSetString(resultSet, "observacao"));
             listaVacina.add(vacina);
         }
         return listaVacina;
@@ -274,7 +286,7 @@ public class VacinaControl {
             stmt.setLong(1, id_usuario);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                prof = new Profissional(rs.getLong("id_pessoa"), rs.getLong("id_profissional"), rs.getString("nome_profissional"));
+                prof = new Profissional(getResultSetLong(rs, "id_pessoa"), rs.getLong("id_profissional"), rs.getString("nome_profissional"));
                 vacinaDaCampanha = new Vacina(new Date(rs.getString("data_aplicacao")), rs.getInt("dose_aplicada"), rs.getString("nome_vacina"), prof);
                 campanha = new Campanha(rs.getString("slogan"), vacinaDaCampanha, new Date(rs.getString("data_inicio")), new Date(rs.getString("data_fim")));
                 lista.add(campanha);
@@ -312,7 +324,7 @@ public class VacinaControl {
             stmt.setLong(1, id_usuario);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                prof = new Profissional(rs.getLong("id_pessoa"), rs.getLong("id_profissional"), rs.getString("nome_profissional"));
+                prof = new Profissional(getResultSetLong(rs, "id_pessoa"), rs.getLong("id_profissional"), rs.getString("nome_profissional"));
                 vacinaDaCampanha = new Vacina(new Date(rs.getString("data_aplicacao")), rs.getInt("dose_aplicada"), rs.getString("nome_vacina"), prof);
                 lista.add(vacinaDaCampanha);
             }

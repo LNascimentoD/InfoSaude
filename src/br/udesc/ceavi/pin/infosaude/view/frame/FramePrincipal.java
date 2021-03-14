@@ -45,12 +45,12 @@ public class FramePrincipal extends javax.swing.JFrame {
     }
 
     public void initComponentsExtenal() {
-        setSize(jpTopo, new Dimension(this.getSize().width - 286, 130));
-        setSize(jpColuna, new Dimension(286, this.getSize().height));
+        setSizes(jpTopo, new Dimension(this.getSize().width - 286, 130));
+        setSizes(jpColuna, new Dimension(286, this.getSize().height));
         this.setMinimumSize(new Dimension(993, 647));
-        setSize(tfBusca, new Dimension(52, 32));
-        setSize(lbTitulo, new Dimension(280, 30));
-        setSize(lbBusca, new Dimension(26, 26));
+        setSizes(tfBusca, new Dimension(52, 32));
+        setSizes(lbTitulo, new Dimension(280, 30));
+        setSizes(lbBusca, new Dimension(26, 26));
         menu = new MenuJPaneUniversao(this.jpColuna.getSize().width, this);
         jpMenu.add(menu);
         addPanel(new InternalFrameDadosPessoais(new Pessoa("038.752.762-13",
@@ -81,11 +81,24 @@ public class FramePrincipal extends javax.swing.JFrame {
         lbTitulo.setText("" + frame.getTitle());
         return true;
     }
-
-    public void setSize(Component c, Dimension size) {
-        c.setMinimumSize(size);
+    
+    public void setSizes(Component c, Dimension size) {
+    	setSizeFrame(c, size);
+    	setMinimunSizeFrame(c, size);
+    	setPreferredSizeFrame(c, size);
+    	
+    }
+    
+    public void setSizeFrame(Component c, Dimension size) {
         c.setSize(size);
-        c.setPreferredSize(size);
+    }
+    
+    public void setMinimunSizeFrame(Component c, Dimension size) {
+    	c.setMinimumSize(size);
+    }
+    
+    public void setPreferredSizeFrame(Component c, Dimension size) {
+    	c.setPreferredSize(size);
     }
 
     @SuppressWarnings("unchecked")
@@ -330,13 +343,29 @@ public class FramePrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_tfBuscaFocusGained
 
     private void tfBuscaFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tfBuscaFocusLost
-        tfBusca.setBackground(new java.awt.Color(63, 72, 204));
-        tfBusca.setBorder(null);
-        if (tfBusca.getText().length() == 0) {
+        tfSetBackground(new java.awt.Color(63, 72, 204));
+        tfSetBorder();
+        tfSetText();
+        tfRevalidate();
+    }//GEN-LAST:event_tfBuscaFocusLost
+    
+    public void tfSetBackground(Color c) {
+    	tfBusca.setBackground(c);
+    }  
+    
+    public void tfSetBorder() {
+    	tfBusca.setBorder(null);
+    }
+    
+    public void tfSetText() {
+    	if (tfBusca.getText().length() == 0) {
             tfBusca.setText("Buscar");
         }
-        tfBusca.revalidate();
-    }//GEN-LAST:event_tfBuscaFocusLost
+    }
+    
+    public void tfRevalidate() {
+    	tfBusca.revalidate();
+    }
 
     private void btnSignOffLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignOffLoginActionPerformed
         if (Main.usuario == null) {

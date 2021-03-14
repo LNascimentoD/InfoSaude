@@ -27,23 +27,49 @@ public class Carterinha {
     public Pessoa getUsuario() {
         return usuario;
     }
+    
+    public boolean vacinasTomadasVazias() {
+    	return this.listaDeVacinaTomadas.isEmpty();
+    }
+    
+    public int quantidadeVacinasTomadas() {
+    	return listaDeVacinaTomadas.size();
+    }
+    
+    public Vacina buscaVacina(int i) {
+    	return listaDeVacinaTomadas.get(i);
+    }
 
     public Vacina getVacinaPorNome(String nome) {
-        if (this.listaDeVacinaTomadas.isEmpty()) {
-            for (int i = 0; i < listaDeVacinaTomadas.size(); i++) {
-                if (listaDeVacinaTomadas.get(i).getVacina().equals(nome)) {
-                    return listaDeVacinaTomadas.get(i);
+        if (vacinasTomadasVazias()) {
+            for (int i = 0; i < quantidadeVacinasTomadas(); i++) {
+            	Vacina v = buscaVacina(i);
+                if (v.getVacina().equals(nome)) {
+                    return v;
                 }
             }
         }
         return null;
     }
+    
+    public boolean campanhasParticipadasVazias() {
+    	return this.listaDeCampanhaParticipadas.isEmpty();
+    }
+    
+    public int quantidadeCampanhasParticipadas() {
+    	return listaDeCampanhaParticipadas.size();
+    }
+    
+    public Campanha buscaCampanha(int i) {
+    	return listaDeCampanhaParticipadas.get(i);
+    }
 
     public Campanha getCampanhaPorNome(String nome) {
-        if (this.listaDeCampanhaParticipadas.isEmpty()) {
-            for (int i = 0; i < listaDeCampanhaParticipadas.size(); i++) {
-                if (listaDeCampanhaParticipadas.get(i).getVacina().equals(nome)) {
-                    return listaDeCampanhaParticipadas.get(i);
+        if (campanhasParticipadasVazias()) {
+            for (int i = 0; i < quantidadeCampanhasParticipadas(); i++) {
+            	Campanha c = buscaCampanha(i);
+                if (c.getVacina().equals(nome)) {
+                    return c;
                 }
             }
         }

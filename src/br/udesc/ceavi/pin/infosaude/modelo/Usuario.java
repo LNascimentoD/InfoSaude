@@ -25,7 +25,7 @@ public class Usuario extends Pessoa {
     }
 
     public Usuario(Pessoa pessoa) {
-        super(pessoa.getId(),pessoa.getCpf(), pessoa.getDataNascimento(), pessoa.getLogin(), pessoa.getNome(), pessoa.getNumeroSUS(), pessoa.getRegistroGeral(), pessoa.getSenha(), pessoa.getSexo(), pessoa.getEndereco());
+        super(pessoa);
     }
 
 

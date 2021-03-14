@@ -463,24 +463,30 @@ public class InternalFrameLancamentoDeVacina extends javax.swing.JInternalFrame 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public String buscaCPF() {
+    	return tfCPF.getText();
+    }
+    
     private void btnBuscar_UsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscar_UsuarioActionPerformed
-        if (tfCPF.getText().equals("")) {
+    	String cpf = buscaCPF();
+        if (cpf.equals("")) {
             JOptionPane.showMessageDialog(this, "Campo de CPF Vaziu");
             return;
         }
         Pessoa pessoa = null;
         try {
             UsuarioControl controladorUsuario = new UsuarioControl();
-            pessoa = controladorUsuario.buscarPeloCPF(tfCPF.getText());
+            pessoa = controladorUsuario.buscarPeloCPF(cpf);
         } catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Erro ao Estabelecer Conexão Com O Banco de Dados");
             return;
         }
         if (pessoa != null) {
-            id_usuario = pessoa.getId();
-            tfNome_Usuario.setText(pessoa.getNome());
-            tfNumSUS.setText(pessoa.getNumeroSUS());
+        	String[] informacoesUser = pessoa.retornaUser();
+            id_usuario = Long.parseLong(informacoesUser[0]);
+            tfNome_Usuario.setText(informacoesUser[1]);
+            tfNumSUS.setText(informacoesUser[2]);
         } else {
             JOptionPane.showMessageDialog(this, "Usuario Não Encotrado");
         }

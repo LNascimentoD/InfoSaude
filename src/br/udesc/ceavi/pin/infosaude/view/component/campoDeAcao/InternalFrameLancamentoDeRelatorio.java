@@ -199,10 +199,15 @@ public class InternalFrameLancamentoDeRelatorio extends javax.swing.JInternalFra
         jpSelecaoRelatorio.repaint();
     }//GEN-LAST:event_cbRelatioActionPerformed
 
+    public int selecionaIndex() {
+    	return cbEscolha.getSelectedIndex();
+    }
+    
     private void btnEscolhaRelacotioActionPerformed(ActionEvent evt) {
-        if (cbEscolha.getSelectedIndex() == 0) {
+    	int resultado = selecionaIndex();
+        if ( resultado == 0) {
             System.out.println("Escolha 1");
-        } else if (cbEscolha.getSelectedIndex() == 1) {
+        } else if (resultado == 1) {
             System.out.println("Escolha 2");
         }
     }

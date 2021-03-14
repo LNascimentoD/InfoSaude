@@ -31,6 +31,20 @@ public class Pessoa implements Usuario_Logado {
         super();
         this.nome = "Teste InfoSaude";
     }
+    
+    public Pessoa(Pessoa pessoa) {
+        super();
+        this.id_pessoa  = (long)pessoa.id_pessoa;
+        this.cpf = pessoa.getCpf();
+        this.dataNascimento = pessoa.getDataNascimento();
+        this.login = pessoa.getLogin();
+        this.nome = pessoa.getNome();
+        this.numeroSUS = pessoa.getNumeroSUS();
+        this.registroGeral = pessoa.getRegistroGeral();
+        this.senha = pessoa.getSenha();
+        this.sexo = pessoa.getSexo();
+        this.endereco = pessoa.getEndereco();
+    }
 
     public Pessoa(long id_pessoa, String cpf, Date dataNascimento, String login, String nome, String numeroSUS, String registroGeral, String senha, Sexo sexo) {
         super();
@@ -69,6 +83,14 @@ public class Pessoa implements Usuario_Logado {
         this.senha = senha;
         this.sexo = sexo;
         this.endereco = endereco;
+    }
+    
+    public String[] retornaUser() {
+    	String[] user = {};
+    	user[0] = "" + id_pessoa;
+    	user[1] = "" + nome;
+    	user[2] = "" + numeroSUS;
+    	return user;
     }
 
     public long getId() {

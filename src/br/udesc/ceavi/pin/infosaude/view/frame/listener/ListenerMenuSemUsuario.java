@@ -72,6 +72,10 @@ public class ListenerMenuSemUsuario implements Listener {
                     + "Email: infosaude@contato.com");
         }
     }
+    
+    private void addPanel(JInternalFrame novoFrame) {
+    	tela.addPanel(novoFrame);
+    }
 
 	@Override
 	public void addActionbtn0() {

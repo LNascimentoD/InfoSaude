@@ -30,24 +30,23 @@ public class CampanhaControl {
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
+    public long buscaData(Date data) {    	
+    	return data.getTime();
+    }
+    
     public boolean validarCampos(String slogan, Date dataInicio, Date dataFim) {
         boolean a = true;
+        
+        long inicio = buscaData(dataInicio);
+        long fim = buscaData(dataFim);
 
         if (slogan.equals("")) {
             a = false;
             JOptionPane.showMessageDialog(null, "INSIRA UM SLOGAN PARA A CAMPANHA");
         }
-        if (dataInicio.getDay() > dataFim.getDay()) {
+        if (inicio > fim) {
             a = false;
             JOptionPane.showMessageDialog(null, "DADO INVALIDO! DATA INSERIDA INVALIDA \nDIA NÃO CONSISTE!");
-        }
-        if (dataInicio.getMonth() > dataFim.getMonth()) {
-            a = false;
-            JOptionPane.showMessageDialog(null, "DADO INVALIDO! DATA INSERIDA INVALIDA \nMÊS NÃO CONSISTE!");
-        }
-        if (dataInicio.getYear() > dataFim.getYear()) {
-            a = false;
-            JOptionPane.showMessageDialog(null, "DADO INVALIDO! DATA INSERIDA INVALIDA \nANO NÃO CONSISTE!");
         }
         return a;
     }

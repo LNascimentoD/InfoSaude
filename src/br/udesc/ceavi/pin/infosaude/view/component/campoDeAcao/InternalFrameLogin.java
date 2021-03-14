@@ -22,19 +22,35 @@ public class InternalFrameLogin extends javax.swing.JInternalFrame {
     public InternalFrameLogin(FramePrincipal frame) {
         initComponents();
         this.setTitle("Login");
-        setSizeAltentico(btnRegistar, dB);
-        setSizeAltentico(btnLogin, dB);
-        setSizeAltentico(tfUsuario, dt);
-        setSizeAltentico(tfSenha, dt);
-        setSizeAltentico(jPanel1, new Dimension(350, 350));
+        setSizesAltentico(btnRegistar, dB);
+        setSizesAltentico(btnLogin, dB);
+        setSizesAltentico(tfUsuario, dt);
+        setSizesAltentico(tfSenha, dt);
+        setSizesAltentico(jPanel1, new Dimension(350, 350));
         this.frame = frame;
     }
 
-    public void setSizeAltentico(Component co, Dimension d) {
-        co.setSize(d);
-        co.setPreferredSize(d);
-        co.setMaximumSize(d);
-        co.setMinimumSize(d);
+    public void setSizesAltentico(Component co, Dimension d) {
+        setSizeFrame(co, d);
+        setPreferredSizeFrame(co, d);
+        setMaximumSizeFrame(co, d);
+        setMinimumSizeFrame(co, d);
+    }
+    
+    public void setSizeFrame(Component c, Dimension size) {
+        c.setSize(size);
+    }
+    
+    public void setMaximumSizeFrame(Component c, Dimension size) {
+    	c.setMaximumSize(size);
+    }
+    
+    public void setMinimumSizeFrame(Component c, Dimension size) {
+    	c.setMinimumSize(size);
+    }
+    
+    public void setPreferredSizeFrame(Component c, Dimension size) {
+    	c.setPreferredSize(size);
     }
 
     @SuppressWarnings("unchecked")
@@ -168,17 +184,19 @@ public class InternalFrameLogin extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_tfUsuarioFocusLost
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-        if (tfUsuario.getText().equals("") || tfUsuario.getText().equals("Digite o Usuario Aqui")) {
+    	String tfUser = tfUsuario.getText();
+    	char[] tfPass = tfSenha.getPassword();
+        if (tfUser.equals("") || tfUser.equals("Digite o Usuario Aqui")) {
             JOptionPane.showMessageDialog(this, "Digite O Seu Username");
             return;
         }
-        if (String.copyValueOf(tfSenha.getPassword()).equals("")) {
+        if (String.copyValueOf(tfPass).equals("")) {
             JOptionPane.showMessageDialog(this, "Campo Senha Vaziu");
             return;
         }
         try {
             PessoaControl controladorDePessoa = new PessoaControl();
-            boolean logado = controladorDePessoa.login(tfUsuario.getText(), String.copyValueOf(tfSenha.getPassword()));
+            boolean logado = controladorDePessoa.login(tfUser, String.copyValueOf(tfPass));
             if (logado) {
                 addPanel(new InternalFrameTelaInicial());
             }

@@ -158,11 +158,14 @@ public class FrameCadastroDeVacina extends javax.swing.JFrame {
      * date = getPublicoAlvos(); for (int i = 0; i < date.size(); i++) {
      * System.out.println(date.get(i).toString()); }
      */
+    public int buscaNumeroComponente() {
+    	return jpVacina.getComponentCount();
+    }
     public void removePublicoAlvo() {
         if (aux != 0) {
-            int aux = jpVacina.getComponentCount();
+            int aux = buscaNumeroComponente();
             for (int i = 0; i < 6; i++) {
-                jpVacina.remove(jpVacina.getComponentCount() - 1);
+                jpVacina.remove(aux - 1);
             }
             btnAdd.setEnabled(true);
         } else {
@@ -406,11 +409,23 @@ public class FrameCadastroDeVacina extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
     private void btnLimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimparActionPerformed
-        tfNumDose.setText("");
-        tfObservacoes.setText("");
-        tfVacina_nome.setName("");
+        limpaNumDose();
+        limpaObservacoes();
+        limpaVacinaNome();
     }//GEN-LAST:event_btnLimparActionPerformed
 
+    private void limpaNumDose() {
+    	tfNumDose.setText("");
+    }
+    
+    private void limpaObservacoes() {
+    	tfObservacoes.setText("");
+    }
+    
+    private void limpaVacinaNome() {
+    	 tfVacina_nome.setName("");
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnCadastrar;
