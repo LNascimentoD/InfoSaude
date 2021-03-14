@@ -25,16 +25,11 @@ public class ListenerMenuSemUsuario implements Listener {
     public ListenerMenuSemUsuario(List<JButton> listaDeButao, FramePrincipal tela) {
         this.listaDeButao = listaDeButao;
         this.tela = tela;
-        addActions();
-    }
-
-    @Override
-    public void addActions() {
-        listaDeButao.get(0).addActionListener(new btnAction0Listener());
-        listaDeButao.get(1).addActionListener(new btnAction1Listener());
-        listaDeButao.get(2).addActionListener(new btnAction2Listener());
-        listaDeButao.get(3).addActionListener(new btnAction3Listener());
-        listaDeButao.get(4).addActionListener(new btnAction4Listener());
+        addActionbtn0();
+        addActionbtn1();
+        addActionbtn2();
+        addActionbtn3();
+        addActionbtn4();
     }
 
     private class btnAction0Listener implements ActionListener {
@@ -77,4 +72,33 @@ public class ListenerMenuSemUsuario implements Listener {
                     + "Email: infosaude@contato.com");
         }
     }
+
+	@Override
+	public void addActionbtn0() {
+		listaDeButao.get(0).addActionListener(new btnAction0Listener());
+	}
+
+	@Override
+	public void addActionbtn1() {
+		listaDeButao.get(1).addActionListener(new btnAction1Listener());
+		
+	}
+
+	@Override
+	public void addActionbtn2() {
+		listaDeButao.get(2).addActionListener(new btnAction2Listener());
+		
+	}
+
+	@Override
+	public void addActionbtn3() {
+		listaDeButao.get(3).addActionListener(new btnAction3Listener());
+		
+	}
+
+	@Override
+	public void addActionbtn4() {
+		listaDeButao.get(4).addActionListener(new btnAction4Listener());
+		
+	}
 }
