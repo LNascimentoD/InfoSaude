@@ -6,5 +6,9 @@ package br.udesc.ceavi.pin.infosaude.view.frame.listener;
  */
 public interface Listener {
 
-    public void addActions();
+	void addActionbtn0();
+	void addActionbtn1();
+	void addActionbtn2();
+	void addActionbtn3();
+	void addActionbtn4();
 }
