@@ -22,14 +22,25 @@ public class UsuarioControl {
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
+    public PreparedStatement setarLong(PreparedStatement stmt, int num, long id) throws SQLException {
+    	 stmt.setLong(num, id);
+    	return stmt;
+    }
+    
+    public PreparedStatement executarStmt(String sqlQuery, PreparedStatement stmt, long userId) throws ClassNotFoundException, SQLException {
+    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+    	setarLong(stmt, 1, userId);
+    	stmt.executeUpdate();
+    	return stmt;
+    }
+   
     public boolean inserir(Usuario usuario) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into usuario(id_pessoa) values(?)";
         PreparedStatement stmt = null;
+        long userId = usuario.getId();
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            stmt.setLong(1, usuario.getId());
-            stmt.executeUpdate();
+        	stmt = executarStmt(sqlQuery, stmt, userId);
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 id = rs.getLong("id_usuario");
