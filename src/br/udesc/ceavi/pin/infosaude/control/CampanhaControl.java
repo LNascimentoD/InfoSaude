@@ -50,23 +50,61 @@ public class CampanhaControl {
         }
         return a;
     }
+    
+    public PreparedStatement generateStatementLong(PreparedStatement stmt, long id_instituicao, long id_vacina) throws SQLException {
+    	stmt.setLong(1, id_instituicao);
+        stmt.setLong(2, id_vacina);
+        return stmt;
+    }
+    
+    public PreparedStatement generateStatementDate(PreparedStatement stmt, Date dataini, Date datafim) throws SQLException {
+    	stmt.setDate(3, dataini);
+        stmt.setDate(4, datafim);
+        return stmt;
+    }
 
+    public PreparedStatement generateStatementString(PreparedStatement stmt, String slogan) throws SQLException {
+    	stmt.setString(4, slogan);
+    	return stmt;
+    }
+    
+    public String returnSlogin(Campanha campanha) {
+    	return campanha.getSlogan();
+    }
+    
+    public long returnDateInicio(Campanha campanha) {
+    	return campanha.getDataInicio().getTime();
+    }
+    
+    public long returnDateFim(Campanha campanha) {
+    	return campanha.getDataFim().getTime();
+    }
+    
+    public PreparedStatement executeSTMT(PreparedStatement stmt, long id_instituicao, long id_vacina, String sqlQuery, String slogan, Date dataini, Date datafim) throws ClassNotFoundException, SQLException {
+    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+        stmt = generateStatementLong(stmt, id_instituicao, id_vacina);
+        stmt = generateStatementDate(stmt, dataini, datafim);
+        stmt = generateStatementString(stmt, slogan);
+
+        stmt.executeUpdate();
+        return stmt;
+    }
+    
     public Long inserir(Campanha campanha, long id_instituicao, long id_vacina) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into campanha(id_instituicao,id_vacina,data_inicio,data_fim,slogam) values(?,?,?,?,?)";
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            stmt.setLong(1, id_instituicao);
-            stmt.setLong(2, id_vacina);
-            java.sql.Date dataini = new Date(campanha.getDataInicio().getTime());
-            java.sql.Date datafim = new Date(campanha.getDataFim().getTime());
-            stmt.setDate(3, dataini);
-            stmt.setDate(4, datafim);
-            stmt.setString(4, campanha.getSlogan());
-
-            stmt.executeUpdate();
+        	long dataInicio = returnDateInicio(campanha);
+        	long dataFim = returnDateInicio(campanha);
+        	
+        	String slogan = returnSlogin(campanha);
+        	java.sql.Date dataini = new Date(dataInicio);
+            java.sql.Date datafim = new Date(dataFim);
+            
+            stmt = executeSTMT(stmt, id_instituicao, id_vacina, sqlQuery, slogan, dataini, datafim);
+            
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 id = rs.getLong(1);
