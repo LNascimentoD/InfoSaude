@@ -58,7 +58,22 @@ public class VacinaControl {
         }
         return listaVacina;
     }
-
+    
+    public PublicoAlvo setarMin(PublicoAlvo publicoAlvo, int idadeMin) {
+    	publicoAlvo.setMinIdade(idadeMin);
+    	return publicoAlvo;
+    }
+    
+    public PublicoAlvo setarMax(PublicoAlvo publicoAlvo, int idadeMax) {
+    	publicoAlvo.setMinIdade(idadeMax);
+    	return publicoAlvo;
+    }
+    
+    public PublicoAlvo setarSexo(PublicoAlvo publicoAlvo, Sexo sexo) {
+    	publicoAlvo.setSexo(sexo);
+    	return publicoAlvo;
+    }
+    
     //Obter publico alvo de vacina
     public List<PublicoAlvo> obterPublicoAlvo(Long id_vacina) throws SQLException, ClassNotFoundException {
         List<PublicoAlvo> listaPublicoAlvo = new ArrayList<>();
@@ -71,10 +86,13 @@ public class VacinaControl {
 
         while (resultSet.next()) {
             PublicoAlvo publicoAlvo = new PublicoAlvo();
-
-            publicoAlvo.setMinIdade(resultSet.getInt("max_idade"));
-            publicoAlvo.setMaxIdade(resultSet.getInt("min_idade"));
-            publicoAlvo.setSexo(Sexo.valueOf(resultSet.getString("sexo")));
+            
+            int idadeMAX = resultSet.getInt("max_idade");
+            int idadeMIN = resultSet.getInt("min_idade");
+            Sexo sexo = Sexo.valueOf(resultSet.getString("sexo"));
+            publicoAlvo = setarMin(publicoAlvo, idadeMIN);
+            publicoAlvo = setarMax(publicoAlvo,idadeMAX);
+            publicoAlvo = setarSexo(publicoAlvo, sexo);
 
             listaPublicoAlvo.add(publicoAlvo);
             if (stmt != null) {
