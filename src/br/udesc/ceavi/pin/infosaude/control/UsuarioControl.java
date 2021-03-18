@@ -63,6 +63,16 @@ public class UsuarioControl {
         return true;
     }
 
+    public Pessoa setarId(Pessoa pessoa, long id) {
+    	pessoa.setId(id);
+    	return pessoa;
+    }
+    
+    public Pessoa setarNome(Pessoa pessoa, String nome) {
+    	pessoa.setNome(nome);
+    	return pessoa;
+    }
+    
     public Pessoa buscarPeloCPF(String cpf_usuario) throws SQLException, ClassNotFoundException {
         String sqlQuery = "select u.id_usuario, p.nome_pessoa, p.numero_sus from usuario as u natural inner join pessoa as p where p.cpf = ?";
         PreparedStatement stmt = null;
@@ -73,9 +83,12 @@ public class UsuarioControl {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 pessoa = new Pessoa();
-                pessoa.setId(rs.getLong(1));
-                pessoa.setNome(rs.getString(2));
-                pessoa.setNumeroSUS(rs.getString(3));
+                long id = rs.getLong(1);
+                String nome = rs.getString(2);
+                String numeroSUS = rs.getString(3);
+                pessoa = setarId(pessoa, id);
+                pessoa = setarNome(pessoa, nome);
+                pessoa = setarNome(pessoa, numeroSUS);
             }
             this.conexao.commit();
         } catch (SQLException error) {
