@@ -72,7 +72,6 @@ public class UsuarioControl {
     	pessoa.setNome(nome);
     	return pessoa;
     }
-    
     public Pessoa buscarPeloCPF(String cpf_usuario) throws SQLException, ClassNotFoundException {
         String sqlQuery = "select u.id_usuario, p.nome_pessoa, p.numero_sus from usuario as u natural inner join pessoa as p where p.cpf = ?";
         PreparedStatement stmt = null;
