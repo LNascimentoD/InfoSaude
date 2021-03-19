@@ -1,6 +1,7 @@
 package br.udesc.ceavi.pin.infosaude.control;
 
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
+import br.udesc.ceavi.pin.infosaude.control.dao.PreparaStatement;
 import br.udesc.ceavi.pin.infosaude.modelo.Instituicao;
 import br.udesc.ceavi.pin.infosaude.modelo.Profissional;
 
@@ -22,19 +23,33 @@ public class ProfissionalControl {
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
+    public PreparaStatement getStatement() {
+    	PreparaStatement ps = new PreparaStatement();
+    	return ps;
+    }
+    
+    public PreparedStatement executePrepared(PreparedStatement stmt, long id, String sqlQuery) throws ClassNotFoundException, SQLException {
+    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+        stmt = getStatement().setPreparedLong(stmt, id, 1);
+        stmt.executeUpdate();
+        return stmt;
+    }
+    
+    public long getResultLong(ResultSet rs, String index) throws SQLException {
+    	return rs.getLong(index);
+    }
+    
     public Long inserir(Profissional profissional, Instituicao instituicao) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into profissional(id_instituicao) values(?)";
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            stmt.setLong(1, instituicao.getId());
-
-            stmt.executeUpdate();
+        	long _id = instituicao.getId();
+            stmt = executePrepared(stmt, _id, sqlQuery);
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                id = rs.getLong("id_pessoa");
+                id = getResultLong(rs, "id_instituicao");
             }
 
             this.conexao.commit();

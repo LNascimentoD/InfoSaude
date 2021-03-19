@@ -46,6 +46,16 @@ public class Instituicao implements Usuario_Logado {
         this.endereco = endereco;
         this.senha = senha;
     }
+    
+    public String[] retornaInstituicao() {
+    	String[] instituicao = {};
+    	instituicao[0] = "" + id;
+    	instituicao[1] = "" + cnpj;
+    	instituicao[2] = "" + nome;
+    	instituicao[3] = "" + senha;
+    	
+    	return instituicao;
+    }
 
     public long getId() {
         return id;

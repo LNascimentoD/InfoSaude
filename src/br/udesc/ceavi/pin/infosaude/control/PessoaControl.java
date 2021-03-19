@@ -3,6 +3,7 @@ package br.udesc.ceavi.pin.infosaude.control;
 import br.udesc.ceavi.pin.infosaude.modelo.Pessoa;
 import br.udesc.ceavi.pin.infosaude.modelo.Endereco;
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
+import br.udesc.ceavi.pin.infosaude.control.dao.PreparaStatement;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.DadosVaziosExcepitions;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.LoginJaRegistradoNaBaseDeDadosException;
 import br.udesc.ceavi.pin.infosaude.modelo.Instituicao;
@@ -98,33 +99,23 @@ public class PessoaControl {
         return a;
     }
     
-    public PreparedStatement setPreparedString(PreparedStatement stmt, String info, int num) throws SQLException {
-    	stmt.setString(num, info);
-        return stmt;
+    public PreparaStatement getStatement() {
+    	PreparaStatement ps = new PreparaStatement();
+    	return ps;
     }
     
-    public PreparedStatement setPreparedLong(PreparedStatement stmt, long info, int num) throws SQLException {
-    	stmt.setLong(num, info);
-    	return stmt;
-    }
-    
-    public PreparedStatement setPreparedDate(PreparedStatement stmt, java.sql.Date info, int num) throws SQLException {
-    	stmt.setDate(num, info);
-    	return stmt;
-    }
-    
-    public void executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery, long id, long time) throws ClassNotFoundException, SQLException {        
+    public void executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery, long id) throws ClassNotFoundException, SQLException {        
     	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-        stmt = setPreparedLong(stmt, id, 1);
-        stmt = setPreparedString(stmt, dados[1], 2);
-        stmt = setPreparedString(stmt, dados[5], 3);
-        stmt = setPreparedString(stmt, dados[7], 4);
-        stmt = setPreparedString(stmt, dados[3], 5);
-        stmt = setPreparedString(stmt, dados[6], 6);
-        stmt = setPreparedString(stmt, dados[2], 7);
-        stmt = setPreparedString(stmt, dados[8], 9);
-        java.sql.Date dataN = new java.sql.Date(time);
-        stmt = setPreparedDate(stmt, dataN, 8);
+        stmt = getStatement().setPreparedLong(stmt, id, 1);
+        stmt = getStatement().setPreparedString(stmt, dados[1], 2);
+        stmt = getStatement().setPreparedString(stmt, dados[5], 3);
+        stmt = getStatement().setPreparedString(stmt, dados[7], 4);
+        stmt = getStatement().setPreparedString(stmt, dados[3], 5);
+        stmt = getStatement().setPreparedString(stmt, dados[6], 6);
+        stmt = getStatement().setPreparedString(stmt, dados[2], 7);
+        stmt = getStatement().setPreparedString(stmt, dados[8], 9);
+        java.sql.Date dataN = new java.sql.Date(Long.parseLong(dados[4]));
+        stmt = getStatement().setPreparedDate(stmt, dataN, 8);
 
         stmt.executeUpdate();
     }
@@ -137,9 +128,8 @@ public class PessoaControl {
         
         try {
         	long _id = endereco.getId();
-            long time = pessoa.getDataNascimento().getTime();
             String[] dados = pessoa.retornaUser();
-            executePrepared(stmt, dados, sqlQuery, _id, time);
+            executePrepared(stmt, dados, sqlQuery, _id);
             
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
@@ -272,13 +262,13 @@ public class PessoaControl {
 
     public boolean update(Pessoa pessoa) throws SQLException, ClassNotFoundException {
         boolean atualizado = false;
-        Integer id = null;
+        Long id = null;
         String sql = "update pessoa set nome = ?, login = ?, senha = ?, cpf = ?, rg = ?, numero_sus = ?, data_nascimento = ?, sexo = ? where pessoa.id_pessoa = ?";
         PreparedStatement stmt = null;
         try {
             long time = pessoa.getDataNascimento().getTime();
             String[] dados = pessoa.retornaUser();
-            executePrepared(stmt, dados, sql, id, time);
+            executePrepared(stmt, dados, sql, id);
             atualizado = (stmt.executeUpdate() == 1);
             this.conexao.commit();
         } catch (SQLException ex) {
