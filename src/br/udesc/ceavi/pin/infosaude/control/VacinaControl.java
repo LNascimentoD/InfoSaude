@@ -161,7 +161,7 @@ public class VacinaControl {
         }
         return true;
     }
-
+    
     //Obtem as Vacinas aplicadas no usuario
     public List<Vacina> getVacinaUsuario() throws SQLException, ClassNotFoundException {
         List<Vacina> listaDeVacina = new ArrayList();
@@ -175,11 +175,14 @@ public class VacinaControl {
 
         while (resultSet.next()) {
             Vacina vacina = new Vacina();
-            vacina.setId(resultSet.getInt("id_vacina"));
-            vacina.setVacina(resultSet.getString("nome_vacina"));
-            vacina.setDose(resultSet.getInt("dose_aplivada"));
-            vacina.setObservacao(resultSet.getString("observacoes"));
-            vacina.setProfissional(new Profissional(resultSet.getLong("id_pessoa"), resultSet.getLong("id_profissional"), resultSet.getString("profissional")));
+            
+            int idVacina = resultSet.getInt("id_vacina");
+            int dose = resultSet.getInt("dose_aplivada");
+            String nomeVacina = resultSet.getString("nome_vacina");
+            String observacao = resultSet.getString("observacoes");
+            Profissional profissional = new Profissional(resultSet.getLong("id_pessoa"), resultSet.getLong("id_profissional"), resultSet.getString("profissional"));
+            
+            vacina.setVacinada(idVacina, dose, nomeVacina, observacao, profissional);
             listaDeVacina.add(vacina);
         }
         if (stmt != null) {
@@ -233,13 +236,22 @@ public class VacinaControl {
         return vacina;
     }
     
+    public PreparedStatement setarInt(PreparedStatement stmt, int dose, int num) throws SQLException {
+    	stmt.setInt(num, dose);
+    	return stmt;
+    }
+    
+    public PreparedStatement setarLong(PreparedStatement stmt, Long id, int num) throws SQLException {
+		stmt.setLong(num, id);
+    	return stmt;
+    }
+    
     public PreparedStatement criaPS(PreparedStatement stmt, Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException {
-        stmt.setLong(1, id_usuario);
-        stmt.setLong(2, id_vacina);
-        stmt.setLong(3, id_profissional);
+        setarLong(stmt, id_usuario, 1);
+        setarLong(stmt, id_vacina, 2);
+        setarLong(stmt, id_profissional, 3);
         stmt.setDate(4, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-        stmt.setInt(5, dose);
-        
+        setarInt(stmt, dose, 5);
         return stmt;
     }
 

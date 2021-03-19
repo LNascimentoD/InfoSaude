@@ -142,7 +142,13 @@ public class Vacina {
     public void setPublicosAlvos(List<PublicoAlvo> publicosAlvos) {
         this.publicosAlvos = publicosAlvos;
     }
-
+    public void setVacinada(int idVacina, int dose, String numVacina, String observacoes, Profissional profissional) {
+		this.id_vacina = idVacina;
+		this.dose = dose;
+		this.nome_vacina = numVacina;
+		this.observacao = observacoes;
+		this.profissional = profissional;
+    }
     @Override
     public String toString() {
         return nome_vacina;
