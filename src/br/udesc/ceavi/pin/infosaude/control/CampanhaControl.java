@@ -1,6 +1,8 @@
 package br.udesc.ceavi.pin.infosaude.control;
 
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
+import br.udesc.ceavi.pin.infosaude.control.dao.PreparaStatement;
+import br.udesc.ceavi.pin.infosaude.control.dao.ResultadoConsultas;
 import br.udesc.ceavi.pin.infosaude.modelo.Campanha;
 import br.udesc.ceavi.pin.infosaude.modelo.Vacina;
 import br.udesc.ceavi.pin.infosaude.principal.Main;
@@ -51,43 +53,14 @@ public class CampanhaControl {
         return a;
     }
     
-    public PreparedStatement generateStatementLong(PreparedStatement stmt, long id_instituicao, long id_vacina) throws SQLException {
-    	stmt.setLong(1, id_instituicao);
-        stmt.setLong(2, id_vacina);
-        return stmt;
-    }
     
-    public PreparedStatement generateStatementDate(PreparedStatement stmt, Date dataini, Date datafim) throws SQLException {
-    	stmt.setDate(3, dataini);
-        stmt.setDate(4, datafim);
-        return stmt;
-    }
-
-    public PreparedStatement generateStatementString(PreparedStatement stmt, String slogan) throws SQLException {
-    	stmt.setString(4, slogan);
-    	return stmt;
-    }
     
     public String returnSlogin(Campanha campanha) {
     	return campanha.getSlogan();
     }
     
-    public long returnDateInicio(Campanha campanha) {
-    	return campanha.getDataInicio().getTime();
-    }
-    
-    public long returnDateFim(Campanha campanha) {
-    	return campanha.getDataFim().getTime();
-    }
-    
-    public PreparedStatement executeSTMT(PreparedStatement stmt, long id_instituicao, long id_vacina, String sqlQuery, String slogan, Date dataini, Date datafim) throws ClassNotFoundException, SQLException {
-    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-        stmt = generateStatementLong(stmt, id_instituicao, id_vacina);
-        stmt = generateStatementDate(stmt, dataini, datafim);
-        stmt = generateStatementString(stmt, slogan);
-
-        stmt.executeUpdate();
-        return stmt;
+    public long returnDate(Campanha campanha, int i) {
+    	return campanha.getData(i);
     }
     
     public Long inserir(Campanha campanha, long id_instituicao, long id_vacina) throws SQLException, ClassNotFoundException {
@@ -96,18 +69,23 @@ public class CampanhaControl {
 
         PreparedStatement stmt = null;
         try {
-        	long dataInicio = returnDateInicio(campanha);
-        	long dataFim = returnDateInicio(campanha);
-        	
+        	long dataInicio = returnDate(campanha, 1);
+        	long dataFim = returnDate(campanha, 2);
         	String slogan = returnSlogin(campanha);
-        	java.sql.Date dataini = new Date(dataInicio);
-            java.sql.Date datafim = new Date(dataFim);
+        	
+        	String[] dados = {};
+        	dados[0] = "" + id_instituicao;
+        	dados[1] = "" + id_vacina;
+        	dados[1] = "" + dataInicio;
+        	dados[1] = "" + dataFim;
+        	dados[1] = "" + slogan;
+        	
             
-            stmt = executeSTMT(stmt, id_instituicao, id_vacina, sqlQuery, slogan, dataini, datafim);
+            stmt = getStatement().executePrepared(stmt, dados, sqlQuery);
             
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                id = rs.getLong(1);
+                id = getResultados().getResultLong(rs, 1);
             }
             this.conexao.commit();
         } catch (SQLException error) {
@@ -126,25 +104,68 @@ public class CampanhaControl {
         }
         return id;
     }
+    
+    public PreparaStatement getStatement() {
+    	PreparaStatement ps = new PreparaStatement();
+    	return ps;
+    }
+    
+    public ResultadoConsultas getResultados() {
+    	ResultadoConsultas rs = new ResultadoConsultas();
+    	return rs;
+    }
 
+    public String[] getResultSet(ResultSet rs) throws SQLException{
+    	String[] dados = {};
+    	
+    	dados[0] = "" + getResultados().getResultLong(rs, "id_campanha");
+    	dados[1] = "" + getResultados().getResultString(rs, "slogan");
+    	dados[2] = "" + getResultados().getResultLong(rs, "id_vacina");
+    	dados[3] = "" + getResultados().getResultLong(rs, "data_fim");
+    	dados[4] = "" + getResultados().getResultLong(rs, "data_inicio");
+    	dados[5] = "" + getResultados().getResultLong(rs, "nome_vacina");
+    	
+    	return dados;
+    }
+    
+    public Campanha criaCampanha(String[] dados, int i) {
+    	if(i == 1) {
+    		long id_campanha = Long.parseLong(dados[0]);
+        	String slogan = dados[1];
+        	long id_vacina = Long.parseLong(dados[2]);
+        	Date fim = new Date(Long.parseLong(dados[3]));
+        	Date inicio = new Date(Long.parseLong(dados[4]));
+        	
+        	Campanha c = new Campanha(id_campanha, slogan, new Vacina(id_vacina), fim, inicio);
+        	return c;
+    	}else {
+    		long id_campanha = Long.parseLong(dados[0]);
+        	String slogan = dados[1];
+        	long id_vacina = Long.parseLong(dados[2]);
+        	Date fim = new Date(Long.parseLong(dados[3]));
+        	Date inicio = new Date(Long.parseLong(dados[4]));
+        	String nome_vacina = dados[5];
+        	
+        	Vacina vacina = new Vacina(id_vacina, nome_vacina);
+            
+        	Campanha c = new Campanha(id_campanha, slogan, vacina, fim, inicio);
+        	return c;
+    		
+    	}
+    }
     //Obtem as campanhas participada pelo usuario
     public List<Campanha> getCampanhaUsuario() throws SQLException, ClassNotFoundException {
         List<Campanha> listaDeCampanha = new ArrayList();
         String sqlQuery1 = "select c.id_campanha,c.slogam,c.id_vacina,c.data_inicio,c.data_fin"
                 + "from carterinha natural inner join campanha"
                 + "where c.id_usuario = ?";
-        PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery1);
-        stmt.setLong(1, Main.usuario.getId());
-        stmt.execute();
-        ResultSet resultSet = stmt.getResultSet();
+        PreparedStatement stmt = null;
+        ResultSet resultSet = getStatement().executePrepared(stmt, sqlQuery1);
 
         while (resultSet.next()) {
-            Campanha campanha = new Campanha();
-            campanha.setId(resultSet.getLong("id_campanha"));
-            campanha.setSlogan(resultSet.getString("slogam"));
-            campanha.setVacina(new Vacina(resultSet.getLong("id_vacina")));
-            campanha.setDataFim(new Date(resultSet.getShort(resultSet.getString("data_fim"))));
-            campanha.setDataInicio(new Date(resultSet.getShort(resultSet.getString("data_inicio"))));
+            
+            String[] dados = getResultSet(resultSet);
+            Campanha campanha = criaCampanha(dados, 1);
             listaDeCampanha.add(campanha);
         }
         if (stmt != null) {
@@ -168,14 +189,8 @@ public class CampanhaControl {
         ResultSet resultSet = stmt.getResultSet();
 
         while (resultSet.next()) {
-            Campanha campanha = new Campanha();
-            campanha.setId(resultSet.getLong("id_campanha"));
-            campanha.setSlogan(resultSet.getString("slogam"));
-            Vacina vacina = new Vacina(resultSet.getLong("id_vacina"),
-                    resultSet.getInt("num_doses"), resultSet.getString("nome_vacina"), resultSet.getString("observacao"));
-            campanha.setVacina(vacina);
-            campanha.setDataFim(new Date(resultSet.getShort(resultSet.getString("data_fim"))));
-            campanha.setDataInicio(new Date(resultSet.getShort(resultSet.getString("data_inicio"))));
+        	String[] dados = getResultSet(resultSet);
+            Campanha campanha = criaCampanha(dados, 1);
             listaDeCampanha.add(campanha);
         }
         if (stmt != null) {
@@ -196,21 +211,10 @@ public class CampanhaControl {
         PreparedStatement stmt = null;
         Campanha campanha = null;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery);
-            stmt.setLong(1, id_vacina);
-            stmt.setDate(2, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-            stmt.executeQuery();
-            ResultSet rs = stmt.getResultSet();
+            ResultSet rs = getStatement().executePrepared(stmt, id_vacina, sqlQuery);
             if (rs.next()) {
-                campanha = new Campanha();
-                campanha.setId(rs.getLong(1));
-                campanha.setSlogan(rs.getString(2));
-                campanha.setDataFim(rs.getDate(3));
-                campanha.setDataInicio(rs.getDate(4));
-                Vacina vacina = new Vacina();
-                vacina.setId(id_vacina);
-                vacina.setVacina(rs.getString(5));
-                campanha.setVacina(vacina);
+            	String[] dados = getResultSet(rs);
+                campanha = criaCampanha(dados, 2);
             }
             this.conexao.commit();
         } catch (SQLException error) {

@@ -33,6 +33,11 @@ public class Vacina {
     public Vacina(long id_vacina) {
         this.id_vacina = id_vacina;
     }
+    
+    public Vacina(long id_vacina, String nome) {
+        this.id_vacina = id_vacina;
+        this.nome_vacina = nome;
+    }
 
     //Construtor
     public Vacina(Date dataAplicacao, int dose, String nome_vacina, Profissional profissional, List<PublicoAlvo> publicosAlvos) {

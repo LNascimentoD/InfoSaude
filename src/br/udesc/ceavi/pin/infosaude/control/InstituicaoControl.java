@@ -1,6 +1,7 @@
 package br.udesc.ceavi.pin.infosaude.control;
 
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
+import br.udesc.ceavi.pin.infosaude.control.dao.PreparaStatement;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.DadosVaziosExcepitions;
 import br.udesc.ceavi.pin.infosaude.modelo.Endereco;
 import br.udesc.ceavi.pin.infosaude.modelo.Instituicao;
@@ -41,6 +42,21 @@ public class InstituicaoControl {
 
         return a;
     }
+    
+    public PreparaStatement getStatement() {
+    	PreparaStatement ps = new PreparaStatement();
+    	return ps;
+    }
+    
+    public void executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery, long id) throws ClassNotFoundException, SQLException {
+    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+        stmt = getStatement().setPreparedLong(stmt, id, 1);
+        stmt = getStatement().setPreparedString(stmt, dados[1], 2);
+        stmt = getStatement().setPreparedString(stmt, dados[2], 3);
+        stmt = getStatement().setPreparedString(stmt, dados[3], 4);
+        
+        stmt.executeUpdate();
+    }
 
     public Long inserir(Instituicao instituicao, Endereco endereco) throws SQLException, ClassNotFoundException{
         Long id = null;
@@ -48,13 +64,10 @@ public class InstituicaoControl {
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            stmt.setLong(1, endereco.getId());
-            stmt.setString(2, instituicao.getCnpj());
-            stmt.setString(3, instituicao.getNome());
-            stmt.setString(4, instituicao.getSenha());
-
-            stmt.executeUpdate();
+        	String[] dados = instituicao.retornaInstituicao();
+        	long _id = endereco.getId();
+            executePrepared(stmt, dados, sqlQuery, _id);
+            
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 id = rs.getLong(1);

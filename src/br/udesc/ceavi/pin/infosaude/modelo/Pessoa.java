@@ -90,6 +90,13 @@ public class Pessoa implements Usuario_Logado {
     	user[0] = "" + id_pessoa;
     	user[1] = "" + nome;
     	user[2] = "" + numeroSUS;
+    	user[3] = "" + cpf;
+    	user[4] = "" + dataNascimento;
+    	user[5] = "" + login;
+    	user[6] = "" + registroGeral;
+    	user[7] = "" + senha;
+    	user[8] = "" + sexo;
+    	user[9] = "" + endereco;
     	return user;
     }
 

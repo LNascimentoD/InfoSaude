@@ -33,7 +33,24 @@ public class Campanha {
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
     }
+    
+    public Campanha(long id, String slogan, Vacina vacina, Date dataInicio, Date dataFim) {
+    	this.id = id;
+        this.slogan = slogan;
+        this.vacina = vacina;
+        this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
+    }
 
+    
+    public long getData(int i) {
+    	if(i == 1) {
+    		return dataInicio.getTime();
+    	}else {
+        	return dataFim.getTime();
+    	}
+    }
+    
     public long getId() {
         return id;
     }

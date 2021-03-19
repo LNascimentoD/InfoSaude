@@ -3,6 +3,7 @@ package br.udesc.ceavi.pin.infosaude.control;
 import br.udesc.ceavi.pin.infosaude.modelo.Pessoa;
 import br.udesc.ceavi.pin.infosaude.modelo.Endereco;
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
+import br.udesc.ceavi.pin.infosaude.control.dao.PreparaStatement;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.DadosVaziosExcepitions;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.LoginJaRegistradoNaBaseDeDadosException;
 import br.udesc.ceavi.pin.infosaude.modelo.Instituicao;
@@ -97,26 +98,39 @@ public class PessoaControl {
         }
         return a;
     }
+    
+    public PreparaStatement getStatement() {
+    	PreparaStatement ps = new PreparaStatement();
+    	return ps;
+    }
+    
+    public void executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery, long id) throws ClassNotFoundException, SQLException {        
+    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+        stmt = getStatement().setPreparedLong(stmt, id, 1);
+        stmt = getStatement().setPreparedString(stmt, dados[1], 2);
+        stmt = getStatement().setPreparedString(stmt, dados[5], 3);
+        stmt = getStatement().setPreparedString(stmt, dados[7], 4);
+        stmt = getStatement().setPreparedString(stmt, dados[3], 5);
+        stmt = getStatement().setPreparedString(stmt, dados[6], 6);
+        stmt = getStatement().setPreparedString(stmt, dados[2], 7);
+        stmt = getStatement().setPreparedString(stmt, dados[8], 9);
+        java.sql.Date dataN = new java.sql.Date(Long.parseLong(dados[4]));
+        stmt = getStatement().setPreparedDate(stmt, dataN, 8);
+
+        stmt.executeUpdate();
+    }
 
     public Long inserir(Pessoa pessoa, Endereco endereco) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into pessoa(id_endereco,nome_pessoa,login,senha,cpf,rg,numero_sus,data_nascimento,sexo) values(?,?,?,?,?,?,?,?,?)";
 
         PreparedStatement stmt = null;
+        
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            stmt.setLong(1, endereco.getId());
-            stmt.setString(2, pessoa.getNome());
-            stmt.setString(3, pessoa.getLogin());
-            stmt.setString(4, pessoa.getSenha());
-            stmt.setString(5, pessoa.getCpf());
-            stmt.setString(6, pessoa.getRegistroGeral());
-            stmt.setString(7, pessoa.getNumeroSUS());
-            java.sql.Date dataN = new java.sql.Date(pessoa.getDataNascimento().getTime());
-            stmt.setDate(8, dataN);
-            stmt.setString(9, pessoa.getSexo().toString());
-
-            stmt.executeUpdate();
+        	long _id = endereco.getId();
+            String[] dados = pessoa.retornaUser();
+            executePrepared(stmt, dados, sqlQuery, _id);
+            
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 id = rs.getLong(1);
@@ -248,20 +262,13 @@ public class PessoaControl {
 
     public boolean update(Pessoa pessoa) throws SQLException, ClassNotFoundException {
         boolean atualizado = false;
+        Long id = null;
         String sql = "update pessoa set nome = ?, login = ?, senha = ?, cpf = ?, rg = ?, numero_sus = ?, data_nascimento = ?, sexo = ? where pessoa.id_pessoa = ?";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao().prepareStatement(sql);
-            stmt.setString(1, pessoa.getNome());
-            stmt.setString(2, pessoa.getLogin());
-            stmt.setString(3, pessoa.getSenha());
-            stmt.setString(3, pessoa.getCpf());
-            stmt.setString(4, pessoa.getRegistroGeral());
-            stmt.setString(5, pessoa.getNumeroSUS());
-            java.sql.Date dataN = new java.sql.Date(pessoa.getDataNascimento().getTime());
-            stmt.setDate(6, dataN);
-            stmt.setString(7, pessoa.getSexo().toString());
-            stmt.setLong(8, pessoa.getId());
+            long time = pessoa.getDataNascimento().getTime();
+            String[] dados = pessoa.retornaUser();
+            executePrepared(stmt, dados, sql, id);
             atualizado = (stmt.executeUpdate() == 1);
             this.conexao.commit();
         } catch (SQLException ex) {
