@@ -21,18 +21,26 @@ public class PublicoAlvoControl {
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
 
+    public PreparedStatement setInt(PreparedStatement stmt, int idade, int num) throws SQLException {
+    	stmt.setInt(num, idade);
+        return stmt;
+    }
+    
+    public void executeStatement(PreparedStatement stmt, PublicoAlvo publicoAlvo, long id_vacina, String sqlQuery) throws SQLException, ClassNotFoundException {
+        stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+    	stmt.setLong(1, id_vacina);
+    	stmt = setInt(stmt, publicoAlvo.getMinIdade(),2);
+    	stmt = setInt(stmt, publicoAlvo.getMaxIdade(),3);
+        stmt.setString(4, publicoAlvo.getSexo().toString());
+        stmt.executeUpdate();
+    }
+    
     public Long inserir(PublicoAlvo publicoAlvo, long id_vacina) throws SQLException, ClassNotFoundException {
         Long id = null;
         String sqlQuery = "insert into publico_alvo(id_vacina,min_idade,max_idade,sexo) values(?,?,?,?)";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            stmt.setLong(1, id_vacina);
-            stmt.setInt(2, publicoAlvo.getMinIdade());
-            stmt.setInt(3, publicoAlvo.getMaxIdade());
-            stmt.setString(4, publicoAlvo.getSexo().toString());
-
-            stmt.executeUpdate();
+            executeStatement(stmt, publicoAlvo, id_vacina, sqlQuery);
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 id = rs.getLong("id_publico_alvo");

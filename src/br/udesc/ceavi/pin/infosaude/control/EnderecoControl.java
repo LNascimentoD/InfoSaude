@@ -58,19 +58,7 @@ public class EnderecoControl {
 
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, endereco.getBairro());
-            stmt.setString(2, endereco.getCep());
-            stmt.setString(3, endereco.getCidade());
-            stmt.setString(4, endereco.getComplemento());
-            stmt.setInt(5, endereco.getNumero());
-            stmt.setString(6, endereco.getRua());
-            String e = endereco.getEstado().toString();
-            e = e.replaceAll(" ", "_");
-            stmt.setString(7, e.toUpperCase());
-            stmt.setString(8, endereco.getEmail());
-            stmt.setString(9, endereco.getTelefone());
-            stmt.executeUpdate();
+            executePrepared(stmt, endereco, sqlQuery);
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 endereco.setId(rs.getLong(1));
@@ -129,26 +117,54 @@ public class EnderecoControl {
         }
         return endereco;
     }
+    
+    public PreparedStatement setPreparedStatementString(PreparedStatement stmt, String info, int num) throws SQLException {
+    	stmt.setString(num, info);
+        
+        return stmt;
+    }
+    
+    public PreparedStatement setPreparedStatementInt(PreparedStatement stmt, Endereco endereco) throws SQLException {
+        stmt.setInt(5, endereco.getNumero());
+    	return stmt;
+    }
+    
+    public PreparedStatement setPreparedStatementLong(PreparedStatement stmt, Endereco endereco) throws SQLException {
+    	stmt.setLong(10, endereco.getId());
+    	return stmt;
+    }
+    
+    public int executePrepared(PreparedStatement stmt, Endereco endereco, String sqlQuery) throws ClassNotFoundException, SQLException {
+    	String bairro = endereco.getBairro();
+    	String cep = endereco.getCep();
+    	String cidade = endereco.getCidade();
+    	String complemento = endereco.getComplemento();
+    	String rua = endereco.getRua();
+    	String estado = endereco.getEstado().toString().replaceAll(" ", "_");
+    	String email = endereco.getEmail();
+    	String telefone = endereco.getTelefone();
+    	
+    	stmt = this.conexao().prepareStatement(sqlQuery);
+    	stmt = setPreparedStatementString(stmt,bairro, 1);
+    	stmt = setPreparedStatementString(stmt,cep, 2);
+    	stmt = setPreparedStatementString(stmt,cidade, 3);
+    	stmt = setPreparedStatementString(stmt,complemento, 4);
+    	stmt = setPreparedStatementString(stmt,rua, 6);
+    	stmt = setPreparedStatementString(stmt,estado, 7);
+    	stmt = setPreparedStatementString(stmt,email, 8);
+    	stmt = setPreparedStatementString(stmt,telefone, 9);
+
+    	stmt = setPreparedStatementInt(stmt, endereco);
+    	stmt = setPreparedStatementLong(stmt, endereco);
+    	return stmt.executeUpdate();
+    }
 
     public boolean update(Endereco endereco) throws SQLException, ClassNotFoundException {
         boolean atualizado = false;
         String sqlQuery = "UPDATE endereco SET bairro=?, cep=?, cidade=?, complemento=?, numero=?, rua=?, estado=?, email=?, telefone=? WHERE endereco.id_endereco = ?";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery);
-            stmt.setString(1, endereco.getBairro());
-            stmt.setString(2, endereco.getCep());
-            stmt.setString(3, endereco.getCidade());
-            stmt.setString(4, endereco.getComplemento());
-            stmt.setInt(5, endereco.getNumero());
-            stmt.setString(6, endereco.getRua());
-            String e = endereco.getEstado().toString();
-            e = e.replaceAll(" ", "_");
-            stmt.setString(7, e.toUpperCase());
-            stmt.setString(8, endereco.getEmail());
-            stmt.setString(9, endereco.getTelefone());
-            stmt.setLong(10, endereco.getId());
-            atualizado = stmt.executeUpdate() == 1;
+            atualizado = executePrepared(stmt, endereco, sqlQuery)  == 1;
         } catch (SQLException error) {
             this.conexao.rollback();
             throw error;
