@@ -2,6 +2,7 @@ package br.udesc.ceavi.pin.infosaude.control;
 
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
 import br.udesc.ceavi.pin.infosaude.control.dao.PreparaStatement;
+import br.udesc.ceavi.pin.infosaude.control.dao.UsuarioStatement;
 import br.udesc.ceavi.pin.infosaude.modelo.Pessoa;
 import br.udesc.ceavi.pin.infosaude.modelo.Usuario;
 
@@ -22,18 +23,6 @@ public class UsuarioControl {
     public Connection conexao() throws ClassNotFoundException, SQLException{
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
-    
-    public PreparedStatement setarLong(PreparedStatement stmt, int num, long id) throws SQLException {
-    	 stmt.setLong(num, id);
-    	return stmt;
-    }
-    
-    public PreparedStatement executarStmt(String sqlQuery, PreparedStatement stmt, long userId) throws ClassNotFoundException, SQLException {
-    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-    	setarLong(stmt, 1, userId);
-    	stmt.executeUpdate();
-    	return stmt;
-    }
    
     public boolean inserir(Usuario usuario) throws SQLException, ClassNotFoundException {
         Long id = null;
@@ -41,7 +30,7 @@ public class UsuarioControl {
         PreparedStatement stmt = null;
         long userId = usuario.getId();
         try {
-        	stmt = executarStmt(sqlQuery, stmt, userId);
+        	stmt = getStatement().executePrepared(sqlQuery, stmt, userId);
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 id = rs.getLong("id_usuario");
@@ -74,17 +63,9 @@ public class UsuarioControl {
     	return pessoa;
     }
     
-    public PreparaStatement getStatement() {
-    	PreparaStatement ps = new PreparaStatement();
+    public UsuarioStatement getStatement() {
+    	UsuarioStatement ps = new UsuarioStatement();
     	return ps;
-    }
-    
-    public ResultSet executePrepared(PreparedStatement stmt, String cpf_usuario, String sqlQuery) throws ClassNotFoundException, SQLException {
-    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-        stmt = getStatement().setPreparedString(stmt, cpf_usuario, 1);
-        ResultSet rs = stmt.executeQuery();
-        
-        return rs;
     }
     
     public long getResultLong(ResultSet rs, int index) throws SQLException {
@@ -100,7 +81,7 @@ public class UsuarioControl {
         PreparedStatement stmt = null;
         Pessoa pessoa = null;
         try {
-            ResultSet rs = executePrepared(stmt, cpf_usuario, sqlQuery);
+            ResultSet rs = getStatement().executePrepared(stmt, cpf_usuario, sqlQuery);
             if (rs.next()) {
                 pessoa = new Pessoa();
                 long id = getResultLong(rs, 1);

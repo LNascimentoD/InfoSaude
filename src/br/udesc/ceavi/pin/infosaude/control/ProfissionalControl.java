@@ -2,6 +2,7 @@ package br.udesc.ceavi.pin.infosaude.control;
 
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
 import br.udesc.ceavi.pin.infosaude.control.dao.PreparaStatement;
+import br.udesc.ceavi.pin.infosaude.control.dao.ProfissionalStatement;
 import br.udesc.ceavi.pin.infosaude.modelo.Instituicao;
 import br.udesc.ceavi.pin.infosaude.modelo.Profissional;
 
@@ -23,16 +24,9 @@ public class ProfissionalControl {
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
     }
     
-    public PreparaStatement getStatement() {
-    	PreparaStatement ps = new PreparaStatement();
+    public ProfissionalStatement getStatement() {
+    	ProfissionalStatement ps = new ProfissionalStatement();
     	return ps;
-    }
-    
-    public PreparedStatement executePrepared(PreparedStatement stmt, long id, String sqlQuery) throws ClassNotFoundException, SQLException {
-    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-        stmt = getStatement().setPreparedLong(stmt, id, 1);
-        stmt.executeUpdate();
-        return stmt;
     }
     
     public long getResultLong(ResultSet rs, String index) throws SQLException {
@@ -46,7 +40,7 @@ public class ProfissionalControl {
         PreparedStatement stmt = null;
         try {
         	long _id = instituicao.getId();
-            stmt = executePrepared(stmt, _id, sqlQuery);
+            stmt = getStatement().executePrepared2(stmt, _id, sqlQuery);
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 id = getResultLong(rs, "id_instituicao");
@@ -70,6 +64,16 @@ public class ProfissionalControl {
 
         return id;
     }
+    
+    public ResultSet executePrepared(PreparedStatement stmt, String sqlQuery, String login, String senha) throws ClassNotFoundException, SQLException {
+    	stmt = this.conexao().prepareStatement(sqlQuery);
+    	stmt = getStatement().setPreparedString(stmt, login, 1);
+    	stmt = getStatement().setPreparedString(stmt, senha, 2);
+        stmt.executeQuery();
+        ResultSet rs = stmt.getResultSet();
+        
+        return rs;
+    }
 
     public Long getAcessoProfissional(String login, String senha) throws SQLException, ClassNotFoundException {
         Long id_profissional = -1l;
@@ -77,13 +81,9 @@ public class ProfissionalControl {
         PreparedStatement stmt = null;
         int q = -1;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery);
-            stmt.setString(1, login);
-            stmt.setString(2, senha);
-            stmt.executeQuery();
-            ResultSet rs = stmt.getResultSet();
+            ResultSet rs = executePrepared(stmt, sqlQuery, login, senha);       
             while (rs.next()) {
-                id_profissional = rs.getLong("id_profissional");
+                id_profissional = getResultLong(rs, "id_profissional");
             }
         } catch (SQLException ex) {
             this.conexao.rollback();

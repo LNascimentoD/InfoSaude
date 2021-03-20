@@ -72,6 +72,21 @@ public class PessoaControl {
             return a;
         }
     }
+    
+    public void executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery, long id, int option, java.sql.Date dataN) throws ClassNotFoundException, SQLException {        
+    	stmt = this.conexao().prepareStatement(sqlQuery, option);
+        stmt = getStatement().setPreparedLong(stmt, id, 1);
+        stmt = getStatement().setPreparedString(stmt, dados[1], 2);
+        stmt = getStatement().setPreparedString(stmt, dados[5], 3);
+        stmt = getStatement().setPreparedString(stmt, dados[7], 4);
+        stmt = getStatement().setPreparedString(stmt, dados[3], 5);
+        stmt = getStatement().setPreparedString(stmt, dados[6], 6);
+        stmt = getStatement().setPreparedString(stmt, dados[2], 7);
+        stmt = getStatement().setPreparedString(stmt, dados[8], 9);
+        stmt = getStatement().setPreparedDate(stmt, dataN, 8);
+
+        stmt.executeUpdate();
+    }
 
     public boolean validaCampos(String cpf,
             String nome, String numero, String rg, String senha) throws DadosVaziosExcepitions, SQLException {
@@ -103,22 +118,6 @@ public class PessoaControl {
     	PreparaStatement ps = new PreparaStatement();
     	return ps;
     }
-    
-    public void executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery, long id) throws ClassNotFoundException, SQLException {        
-    	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-        stmt = getStatement().setPreparedLong(stmt, id, 1);
-        stmt = getStatement().setPreparedString(stmt, dados[1], 2);
-        stmt = getStatement().setPreparedString(stmt, dados[5], 3);
-        stmt = getStatement().setPreparedString(stmt, dados[7], 4);
-        stmt = getStatement().setPreparedString(stmt, dados[3], 5);
-        stmt = getStatement().setPreparedString(stmt, dados[6], 6);
-        stmt = getStatement().setPreparedString(stmt, dados[2], 7);
-        stmt = getStatement().setPreparedString(stmt, dados[8], 9);
-        java.sql.Date dataN = new java.sql.Date(Long.parseLong(dados[4]));
-        stmt = getStatement().setPreparedDate(stmt, dataN, 8);
-
-        stmt.executeUpdate();
-    }
 
     public Long inserir(Pessoa pessoa, Endereco endereco) throws SQLException, ClassNotFoundException {
         Long id = null;
@@ -129,7 +128,7 @@ public class PessoaControl {
         try {
         	long _id = endereco.getId();
             String[] dados = pessoa.retornaUser();
-            executePrepared(stmt, dados, sqlQuery, _id);
+            executePrepared(stmt, dados, sqlQuery, id, Statement.RETURN_GENERATED_KEYS, new java.sql.Date(Long.parseLong(dados[4])));
             
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
@@ -268,7 +267,7 @@ public class PessoaControl {
         try {
             long time = pessoa.getDataNascimento().getTime();
             String[] dados = pessoa.retornaUser();
-            executePrepared(stmt, dados, sql, id);
+            executePrepared(stmt, dados, sql, id, Statement.RETURN_GENERATED_KEYS, new java.sql.Date(Long.parseLong(dados[4])));
             atualizado = (stmt.executeUpdate() == 1);
             this.conexao.commit();
         } catch (SQLException ex) {

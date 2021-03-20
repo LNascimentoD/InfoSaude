@@ -161,7 +161,7 @@ public class CampanhaControl {
                 + "where c.id_usuario = ?";
         PreparedStatement stmt = null;
         ResultSet resultSet = getStatement().executePrepared(stmt, sqlQuery1);
-
+        
         while (resultSet.next()) {
             
             String[] dados = getResultSet(resultSet);
@@ -212,6 +212,7 @@ public class CampanhaControl {
         Campanha campanha = null;
         try {
             ResultSet rs = getStatement().executePrepared(stmt, id_vacina, sqlQuery);
+            
             if (rs.next()) {
             	String[] dados = getResultSet(rs);
                 campanha = criaCampanha(dados, 2);

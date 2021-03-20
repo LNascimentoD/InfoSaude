@@ -66,7 +66,7 @@ public class InstituicaoControl {
         try {
         	String[] dados = instituicao.retornaInstituicao();
         	long _id = endereco.getId();
-            executePrepared(stmt, dados, sqlQuery, _id);
+        	executePrepared(stmt, dados, sqlQuery, _id);
             
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {

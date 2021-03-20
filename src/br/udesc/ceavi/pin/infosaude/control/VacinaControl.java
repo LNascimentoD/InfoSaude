@@ -254,6 +254,13 @@ public class VacinaControl {
         setarInt(stmt, dose, 5);
         return stmt;
     }
+    
+    public ResultSet executePrepared(PreparedStatement stmt, String sql, long id_usuario) throws ClassNotFoundException, SQLException {
+    	stmt = this.conexao().prepareStatement(sql);
+        stmt = setarLong(stmt, id_usuario, 1);
+        ResultSet rs = stmt.executeQuery();
+		return rs;
+    }
 
     public boolean aplicarVacina(Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException, ClassNotFoundException {
         String sqlQueryComCampanhaEOBS = "insert into carterinha(id_usuario,id_vacina,id_campanha,id_profissional,data_aplicacao,observacoes,dose_aplicada)"
@@ -312,13 +319,23 @@ public class VacinaControl {
         Campanha campanha;
         Profissional prof;
         try {
-            stmt = this.conexao().prepareStatement(sql);
-            stmt.setLong(1, id_usuario);
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = executePrepared(stmt, sql, id_usuario);
             while (rs.next()) {
-                prof = new Profissional(getResultSetLong(rs, "id_pessoa"), rs.getLong("id_profissional"), rs.getString("nome_profissional"));
-                vacinaDaCampanha = new Vacina(new Date(rs.getString("data_aplicacao")), rs.getInt("dose_aplicada"), rs.getString("nome_vacina"), prof);
-                campanha = new Campanha(rs.getString("slogan"), vacinaDaCampanha, new Date(rs.getString("data_inicio")), new Date(rs.getString("data_fim")));
+            	long id_pessoa = getResultSetLong(rs, "id_pessoa");
+            	long id_profissional = getResultSetLong(rs, "id_profissional");
+            	String nome = getResultSetString(rs, "nome_profissional");
+                prof = new Profissional(id_pessoa, id_profissional, nome);
+                
+                String data = getResultSetString(rs, "data_aplicacao");
+                int dose = getResultSetInt(rs, "dose_aplicada");
+                String nome_vacina = getResultSetString(rs, "nome_vacina");
+                
+                vacinaDaCampanha = new Vacina(new Date(data), dose, nome_vacina, prof);
+                
+                String slogan = getResultSetString(rs, "slogan");
+                String dataI = getResultSetString(rs, "data_inicio");
+                String dataF = getResultSetString(rs, "data_fim");
+                campanha = new Campanha(slogan, vacinaDaCampanha, new Date(dataI), new Date(dataF));
                 lista.add(campanha);
             }
         } catch (SQLException ex) {
@@ -350,12 +367,18 @@ public class VacinaControl {
         Vacina vacinaDaCampanha;
         Profissional prof;
         try {
-            stmt = this.conexao().prepareStatement(sql);
-            stmt.setLong(1, id_usuario);
-            ResultSet rs = stmt.executeQuery();
+        	ResultSet rs = executePrepared(stmt, sql, id_usuario);
             while (rs.next()) {
-                prof = new Profissional(getResultSetLong(rs, "id_pessoa"), rs.getLong("id_profissional"), rs.getString("nome_profissional"));
-                vacinaDaCampanha = new Vacina(new Date(rs.getString("data_aplicacao")), rs.getInt("dose_aplicada"), rs.getString("nome_vacina"), prof);
+            	long id_pessoa = getResultSetLong(rs, "id_pessoa");
+            	long id_profissional = getResultSetLong(rs, "id_profissional");
+            	String nome = getResultSetString(rs, "nome_profissional");
+                prof = new Profissional(id_pessoa, id_profissional, nome);
+                
+                String data = getResultSetString(rs, "data_aplicacao");
+                int dose = getResultSetInt(rs, "dose_aplicada");
+                String nome_vacina = getResultSetString(rs, "nome_vacina");
+                
+                vacinaDaCampanha = new Vacina(new Date(data), dose, nome_vacina, prof);
                 lista.add(vacinaDaCampanha);
             }
         } catch (SQLException ex) {
