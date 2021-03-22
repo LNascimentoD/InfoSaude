@@ -62,8 +62,14 @@ public class ListenerMenuUsuarioIntituicao implements Listener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            FrameCadastroDeCampanha frameCadastroDeCampanha = new FrameCadastroDeCampanha();
-            frameCadastroDeCampanha.setVisible(true);
+            FrameCadastroDeCampanha frameCadastroDeCampanha;
+			try {
+				frameCadastroDeCampanha = new FrameCadastroDeCampanha();
+				frameCadastroDeCampanha.setVisible(true);
+			} catch (IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
     }
 

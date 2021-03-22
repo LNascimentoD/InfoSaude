@@ -1,7 +1,9 @@
 package br.udesc.ceavi.pin.infosaude.control;
 
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
+import br.udesc.ceavi.pin.infosaude.control.dao.PreparaStatement;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.DadosVaziosExcepitions;
+import br.udesc.ceavi.pin.infosaude.control.excecpton.IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException;
 import br.udesc.ceavi.pin.infosaude.modelo.Campanha;
 import br.udesc.ceavi.pin.infosaude.modelo.Profissional;
 import br.udesc.ceavi.pin.infosaude.modelo.PublicoAlvo;
@@ -23,9 +25,15 @@ import java.util.List;
  *
  * @author lucas
  */
-public class VacinaControl {
+public class VacinaControl{
 
     private Connection conexao;
+    
+    private PreparaStatement ps;
+    
+    public VacinaControl() {
+    	this.ps = new PreparaStatement();
+    }
     
     public Connection conexao() throws ClassNotFoundException, SQLException{
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
@@ -59,23 +67,8 @@ public class VacinaControl {
         return listaVacina;
     }
     
-    public PublicoAlvo setarMin(PublicoAlvo publicoAlvo, int idadeMin) {
-    	publicoAlvo.setMinIdade(idadeMin);
-    	return publicoAlvo;
-    }
-    
-    public PublicoAlvo setarMax(PublicoAlvo publicoAlvo, int idadeMax) {
-    	publicoAlvo.setMinIdade(idadeMax);
-    	return publicoAlvo;
-    }
-    
-    public PublicoAlvo setarSexo(PublicoAlvo publicoAlvo, Sexo sexo) {
-    	publicoAlvo.setSexo(sexo);
-    	return publicoAlvo;
-    }
-    
     //Obter publico alvo de vacina
-    public List<PublicoAlvo> obterPublicoAlvo(Long id_vacina) throws SQLException, ClassNotFoundException {
+    public List<PublicoAlvo> obterPublicoAlvo(Long id_vacina) throws SQLException, ClassNotFoundException, IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException {
         List<PublicoAlvo> listaPublicoAlvo = new ArrayList<>();
         String sqlQuery = "select pa.max_idade,pa.min_idade,pa.sexo from publico_alvo as pa natural inner join vacina where pa.id_vacina = ?";
         PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery);
@@ -85,14 +78,10 @@ public class VacinaControl {
         ResultSet resultSet = stmt.getResultSet();
 
         while (resultSet.next()) {
-            PublicoAlvo publicoAlvo = new PublicoAlvo();
-            
             int idadeMAX = resultSet.getInt("max_idade");
             int idadeMIN = resultSet.getInt("min_idade");
             Sexo sexo = Sexo.valueOf(resultSet.getString("sexo"));
-            publicoAlvo = setarMin(publicoAlvo, idadeMIN);
-            publicoAlvo = setarMax(publicoAlvo,idadeMAX);
-            publicoAlvo = setarSexo(publicoAlvo, sexo);
+            PublicoAlvo publicoAlvo = new PublicoAlvo(idadeMAX, idadeMIN, sexo);
 
             listaPublicoAlvo.add(publicoAlvo);
             if (stmt != null) {
@@ -174,15 +163,18 @@ public class VacinaControl {
         ResultSet resultSet = stmt.getResultSet();
 
         while (resultSet.next()) {
-            Vacina vacina = new Vacina();
+            long idVacina = getResultSetInt(resultSet, "id_vacina");
+            int dose = getResultSetInt(resultSet, "dose_aplicada");
+            String nomeVacina = getResultSetString(resultSet, "nome_vacina");
+            String observacao = getResultSetString(resultSet, "observacoes");
             
-            int idVacina = resultSet.getInt("id_vacina");
-            int dose = resultSet.getInt("dose_aplivada");
-            String nomeVacina = resultSet.getString("nome_vacina");
-            String observacao = resultSet.getString("observacoes");
-            Profissional profissional = new Profissional(resultSet.getLong("id_pessoa"), resultSet.getLong("id_profissional"), resultSet.getString("profissional"));
+            Vacina vacina = new Vacina(idVacina,dose, nomeVacina, observacao);
             
-            vacina.setVacinada(idVacina, dose, nomeVacina, observacao, profissional);
+            long idPessoa = getResultSetLong(resultSet, "id_pessoa");
+            long idProfissional = getResultSetLong(resultSet, "id_profissional");
+            String profissional = getResultSetString(resultSet, "profissional");
+            
+            Profissional p = new Profissional(idPessoa, idProfissional, profissional);
             listaDeVacina.add(vacina);
         }
         if (stmt != null) {
@@ -199,7 +191,6 @@ public class VacinaControl {
 
     //Obter Numero de pessoa condizentes com o publico alvo informado
     public int getNumeroPessoaCondizentesComOPublicoAlvo(PublicoAlvo publico_alvo) {
-
         return -1;
     }
 
@@ -235,32 +226,6 @@ public class VacinaControl {
         }
         return vacina;
     }
-    
-    public PreparedStatement setarInt(PreparedStatement stmt, int dose, int num) throws SQLException {
-    	stmt.setInt(num, dose);
-    	return stmt;
-    }
-    
-    public PreparedStatement setarLong(PreparedStatement stmt, Long id, int num) throws SQLException {
-		stmt.setLong(num, id);
-    	return stmt;
-    }
-    
-    public PreparedStatement criaPS(PreparedStatement stmt, Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException {
-        setarLong(stmt, id_usuario, 1);
-        setarLong(stmt, id_vacina, 2);
-        setarLong(stmt, id_profissional, 3);
-        stmt.setDate(4, new java.sql.Date(Calendar.getInstance().getTimeInMillis()));
-        setarInt(stmt, dose, 5);
-        return stmt;
-    }
-    
-    public ResultSet executePrepared(PreparedStatement stmt, String sql, long id_usuario) throws ClassNotFoundException, SQLException {
-    	stmt = this.conexao().prepareStatement(sql);
-        stmt = setarLong(stmt, id_usuario, 1);
-        ResultSet rs = stmt.executeQuery();
-		return rs;
-    }
 
     public boolean aplicarVacina(Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException, ClassNotFoundException {
         String sqlQueryComCampanhaEOBS = "insert into carterinha(id_usuario,id_vacina,id_campanha,id_profissional,data_aplicacao,observacoes,dose_aplicada)"
@@ -276,16 +241,16 @@ public class VacinaControl {
         try {
             if (id_campanha == -1 && observacoes.equals("")) {
                 stmt = this.conexao().prepareStatement(sqlQuerySIMPLE);
-                criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
+                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha != -1 && observacoes.equals("")) {
                 stmt = this.conexao().prepareStatement(sqlQuery1ComCampanha);
-                criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
+                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha == -1 && !observacoes.equals("")) {
                 stmt = this.conexao().prepareStatement(sqlQueryComOBS);
-                criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
+                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             } else if (id_campanha != -1 && !observacoes.equals("")) {
                 stmt = this.conexao().prepareStatement(sqlQueryComCampanhaEOBS);
-                criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
+                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
             }
             stmt.executeQuery();
             ResultSet rs = stmt.getResultSet();
@@ -355,7 +320,14 @@ public class VacinaControl {
 
         return lista;
     }
-
+    
+    public ResultSet executePrepared(PreparedStatement stmt, String sql, long id_usuario) throws ClassNotFoundException, SQLException {
+    	stmt = this.conexao().prepareStatement(sql);
+    	stmt = this.ps.setPreparedLong(stmt, id_usuario, 1);
+        ResultSet rs = stmt.executeQuery();
+		return rs;
+    }
+    
     public List<Vacina> getVacinaDoUsuario(Long id_usuario) throws SQLException, ClassNotFoundException {
         List<Vacina> lista = new ArrayList<>();
         String sql = "select p.id_pessoa,c.id_profissional,p.nome_pessoa, c.data_aplicacao,"

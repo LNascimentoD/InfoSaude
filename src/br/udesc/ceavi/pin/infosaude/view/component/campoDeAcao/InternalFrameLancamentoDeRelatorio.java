@@ -2,6 +2,7 @@ package br.udesc.ceavi.pin.infosaude.view.component.campoDeAcao;
 
 import br.udesc.ceavi.pin.infosaude.control.CampanhaControl;
 import br.udesc.ceavi.pin.infosaude.control.VacinaControl;
+import br.udesc.ceavi.pin.infosaude.control.excecpton.IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException;
 import br.udesc.ceavi.pin.infosaude.modelo.Campanha;
 import br.udesc.ceavi.pin.infosaude.modelo.Vacina;
 import java.awt.GridBagConstraints;
@@ -56,7 +57,12 @@ public class InternalFrameLancamentoDeRelatorio extends javax.swing.JInternalFra
         cbRelatio.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecione o Relatorio a Ser Gerado", "Efetividade de Campanha", "Pendencia Com Vacina" }));
         cbRelatio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbRelatioActionPerformed(evt);
+                try {
+					cbRelatioActionPerformed(evt);
+				} catch (IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -156,7 +162,7 @@ public class InternalFrameLancamentoDeRelatorio extends javax.swing.JInternalFra
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cbRelatioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbRelatioActionPerformed
+    private void cbRelatioActionPerformed(java.awt.event.ActionEvent evt) throws IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException {//GEN-FIRST:event_cbRelatioActionPerformed
         GridBagConstraints cons = new GridBagConstraints();
         if (this.jpSelecaoRelatorio.getComponentCount() == 3) {
             this.jpSelecaoRelatorio.remove(2);

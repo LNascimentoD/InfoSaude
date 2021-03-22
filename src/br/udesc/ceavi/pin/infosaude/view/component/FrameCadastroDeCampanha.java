@@ -2,6 +2,7 @@ package br.udesc.ceavi.pin.infosaude.view.component;
 
 import br.udesc.ceavi.pin.infosaude.control.CampanhaControl;
 import br.udesc.ceavi.pin.infosaude.control.VacinaControl;
+import br.udesc.ceavi.pin.infosaude.control.excecpton.IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException;
 import br.udesc.ceavi.pin.infosaude.modelo.Campanha;
 import br.udesc.ceavi.pin.infosaude.modelo.PublicoAlvo;
 import br.udesc.ceavi.pin.infosaude.modelo.Sexo;
@@ -30,7 +31,7 @@ public class FrameCadastroDeCampanha extends javax.swing.JFrame {
     private int aux = 0;
     private List<Vacina> date;
 
-    public FrameCadastroDeCampanha() {
+    public FrameCadastroDeCampanha() throws IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException {
         initComponents();
         Dimension d = new Dimension(300, 275);
         this.jpVacina.setSize(d);
@@ -383,7 +384,12 @@ public class FrameCadastroDeCampanha extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FrameCadastroDeCampanha().setVisible(true);
+                try {
+					new FrameCadastroDeCampanha().setVisible(true);
+				} catch (IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
     }

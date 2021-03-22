@@ -6,6 +6,7 @@ import br.udesc.ceavi.pin.infosaude.modelo.Endereco;
 import br.udesc.ceavi.pin.infosaude.modelo.Estado;
 import br.udesc.ceavi.pin.infosaude.modelo.Pessoa;
 import br.udesc.ceavi.pin.infosaude.modelo.Sexo;
+import br.udesc.ceavi.pin.infosaude.util.VerificaDados;
 import br.udesc.ceavi.pin.infosaude.view.frame.FramePrincipal;
 import java.awt.Dimension;
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 public class InternalFrameDadosPessoais extends javax.swing.JInternalFrame {
 
@@ -27,46 +29,37 @@ public class InternalFrameDadosPessoais extends javax.swing.JInternalFrame {
     private Endereco endereco;
     boolean modificarEndereco = false;
     String data;
+    
+    private JTextField[] setCamposArray() {
+    	JTextField[] campos = {};
+
+    	campos[0] = tfNome;
+    	campos[1] = tfNumeroSUS;
+    	campos[2] = tfCPF;
+    	campos [3] = tfDataNascimento;
+    	campos[5] = tfRG;
+    	
+    	campos[4] = tfCEP;
+    	campos[6] = tfBairro;
+    	campos[7] = tfCidade;
+    	campos [8] = tfComplemento;
+    	campos[9] = tfNumero;
+    	campos[10] = tfRua;
+    	campos[11] = tfEmail;
+    	campos[12] = tfTelefone;
+
+    	return campos;
+    }
 
     public InternalFrameDadosPessoais(Pessoa pessoa, FramePrincipal tela) {
         initComponents();
-        this.pessoa = pessoa;
-        this.endereco = pessoa.getEndereco();
+        
         jScrollPane1.setMinimumSize(new Dimension(511, 467));
         jPanel1.setPreferredSize(new Dimension(jScrollPane1.getSize().width, 650));
 
-        tfNome.setText(pessoa.getNome());
-        tfCPF.setText(pessoa.getCpf());
-        tfEmail.setText(pessoa.getEndereco().getEmail());
-        tfNumeroSUS.setText(pessoa.getNumeroSUS());
-        tfRG.setText(pessoa.getRegistroGeral());
-        tfTelefone.setText(pessoa.getEndereco().getTelefone());
-        data = "" + pessoa.getDataNascimento().getDate() + (pessoa.getDataNascimento().getMonth()) + pessoa.getDataNascimento().getYear();
-        if (data.length() != 10) {
-            if (("" + pessoa.getDataNascimento().getDate()).length() != 2) {
-                data = "0" + pessoa.getDataNascimento().getDate();
-            } else {
-                data = "" + pessoa.getDataNascimento().getDate();
-            }
-            if (("" + pessoa.getDataNascimento().getMonth()).length() != 2) {
-                data += "0" + (pessoa.getDataNascimento().getMonth());
-            } else {
-                data += (pessoa.getDataNascimento().getMonth());
-            }
-            if (("" + pessoa.getDataNascimento().getYear()).length() != 4) {
-                System.out.println("ano");
-                data += "0" + pessoa.getDataNascimento().getYear();;
-            } else {
-                data += pessoa.getDataNascimento().getYear();;
-            }
-        }
-        tfDataNascimento.setText(data);
-        tfBairro.setText(pessoa.getEndereco().getBairro());
-        tfCEP.setText(pessoa.getEndereco().getCep());
-        tfCidade.setText(pessoa.getEndereco().getCidade());
-        tfComplemento.setText(pessoa.getEndereco().getComplemento());
-        tfRua.setText(pessoa.getEndereco().getRua());
-        tfNumero.setText("" + pessoa.getEndereco().getNumero());
+        Endereco end = pessoa.getEndereco();
+        JTextField[] campos = setCamposArray();
+        
         for (int i = 0; i < Sexo.values().length; i++) {
             if (Sexo.values()[i] == pessoa.getSexo()) {
                 cbSexo.setSelectedIndex(i);
@@ -458,59 +451,18 @@ public class InternalFrameDadosPessoais extends javax.swing.JInternalFrame {
     private void btCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelarActionPerformed
         tela.addPanel(new InternalFrameTelaInicial());
     }//GEN-LAST:event_btCancelarActionPerformed
-
+    
     private boolean verificaCamposVazios() {
     	//Campos Vaziu
-        if (tfNome.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Campo de Nome Vaziu");
-            return true;
-        }
-        if (tfCPF.getText().replaceAll(" ", "").length() != 14) {
-            JOptionPane.showMessageDialog(this, "Campo de CPF Informado De Forma Errada");
-            return true;
-        }
-        if (tfRG.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Campo de RG Vaziu");
-            return true;
-        }
-        if (tfDataNascimento.getText().equals("  -  -    ")) {
-            JOptionPane.showMessageDialog(this, "Campo de DataNascimento Vaziu");
-            return true;
-        }
-        if (tfTelefone.getText().replaceAll(" ", "").length() != 14) {
-            JOptionPane.showMessageDialog(this, "Campo de Telefone Informado De Forma Errada");
-            return true;
-        }
-        if (tfEmail.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Campo de Email Vaziu");
-            return true;
-        }
-        if (tfCEP.getText().replaceAll(" ", "").length() != 9) {
-            JOptionPane.showMessageDialog(this, "Campo de Cep Informado De Forma Errada");
-            return true;
-        }
-        if (tfCidade.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Campo de Cidade Vaziu");
-            return true;
-        }
-        if (tfBairro.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Campo de Bairro Vaziu");
-            return true;
-        }
-        if (tfRua.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Campo de Rua Vaziu");
-            return true;
-        }
-        if (tfNumero.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Campo de Numero Vaziu");
-            return true;
-        }
-        if (tfNumeroSUS.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Campo de Numero Do SUS Vaziu");
-            return true;
-        }
-        
-        return false;
+    	
+    	VerificaDados vef = new VerificaDados();
+    	boolean flag = vef.verificaVazios(setCamposArray());
+    	
+    	if(flag == true) {
+    		return true;
+    	}else {
+    		return false;
+    	}
     }
     
     private Object[] comparaObjetos() {

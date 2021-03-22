@@ -67,4 +67,13 @@ public class PreparaStatement {
         
         return resultSet;
     }
+    
+    public PreparedStatement criaPS(PreparedStatement stmt, Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException {
+        stmt = setPreparedLong(stmt, id_usuario, 1);
+        stmt = setPreparedLong(stmt, id_vacina, 2);
+    	stmt = setPreparedLong(stmt, id_profissional, 3);
+    	stmt = setPreparedDate(stmt, new java.sql.Date(Calendar.getInstance().getTimeInMillis()), 4);
+        stmt = setPreparedInt(stmt, dose, 5);
+        return stmt;
+    }
 }
