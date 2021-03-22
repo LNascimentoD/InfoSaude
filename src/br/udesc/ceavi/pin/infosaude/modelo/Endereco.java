@@ -30,13 +30,13 @@ public class Endereco {
     }
 
     //Construtor
-    public Endereco(String bairro, String cep, String cidade, String complemento, String email, int numero, String rua, String telefone, Estado estado) {
+    public Endereco(String bairro, String cep, String cidade, String complemento, String email, int num, String rua, String telefone, Estado estado) {
         this.bairro = bairro;
         this.cep = cep;
         this.cidade = cidade;
         this.complemento = complemento;
         this.email = email;
-        this.numero = numero;
+        this.numero = num;
         this.rua = rua;
         this.telefone = telefone;
         this.estado = estado;
