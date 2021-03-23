@@ -1,6 +1,8 @@
 package br.udesc.ceavi.pin.infosaude.control;
 
 import br.udesc.ceavi.pin.infosaude.control.dao.ConexaoPostgresJDBC;
+import br.udesc.ceavi.pin.infosaude.control.dao.EnderecoStatement;
+import br.udesc.ceavi.pin.infosaude.control.dao.ResultadoConsultas;
 import br.udesc.ceavi.pin.infosaude.control.excecpton.DadosVaziosExcepitions;
 import br.udesc.ceavi.pin.infosaude.modelo.Endereco;
 import br.udesc.ceavi.pin.infosaude.modelo.Estado;
@@ -17,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author lucas
  */
-public class EnderecoControl {
+public class EnderecoControl extends EnderecoStatement{
 
 	private Connection conexao;
     
@@ -51,6 +53,11 @@ public class EnderecoControl {
 
         return a;
     }
+    
+    public String[] getEnderco(Endereco endereco) {
+    	String[] dados = endereco.retornaEnde();
+    	return dados;
+    }
 
     public Long inserir(Endereco endereco) throws SQLException, ClassNotFoundException {
         Long id = null;
@@ -58,8 +65,8 @@ public class EnderecoControl {
 
         PreparedStatement stmt = null;
         try {
-            executePrepared(stmt, endereco, sqlQuery);
-            ResultSet rs = stmt.getGeneratedKeys();
+        	String[] dados = getEnderco(endereco);
+            ResultSet rs = getResult(stmt, dados, sqlQuery);
             if (rs.next()) {
                 endereco.setId(rs.getLong(1));
             }
@@ -80,26 +87,29 @@ public class EnderecoControl {
         }
         return id;
     }
+    
+    public ResultadoConsultas getResultado() {
+    	ResultadoConsultas rs = new ResultadoConsultas();
+    	return rs;
+    }
 
     public Endereco getEndereco(Long id_endereco) throws SQLException, ClassNotFoundException {
         Endereco endereco = null;
         String sqlQuery = "select * from endereco where id_endereco = ?";
         PreparedStatement stmt = null;
         try {
-            stmt = this.conexao().prepareStatement(sqlQuery);
-            stmt.setLong(1, id_endereco);
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = executePrepared(stmt, id_endereco, sqlQuery);
             while (rs.next()) {
-                endereco = new Endereco(rs.getString("bairro"),
-                        rs.getString("cep"),
-                        rs.getString("cidade"),
-                        rs.getString("complemeto"),
-                        rs.getString("email"),
-                        rs.getInt("numero"),
-                        rs.getString("rua"),
-                        rs.getString("telefone"),
-                        Estado.valueOf("estado"));
-                endereco.setId(id_endereco);
+            	String bairro = getResultado().getResultString(rs, "bairro");
+            	String cep = getResultado().getResultString(rs, "cep");
+            	String cidade = getResultado().getResultString(rs, "cidade");
+            	String complemento = getResultado().getResultString(rs, "complemento");
+            	String email = getResultado().getResultString(rs, "email");
+            	String rua = getResultado().getResultString(rs, "rua");
+            	String telefone = getResultado().getResultString(rs, "telefone");
+            	int numero = getResultado().getResultInt(rs, "numero");
+            	
+                endereco = new Endereco(id_endereco,bairro,cep,cidade,complemento,email,numero,rua,telefone,Estado.valueOf("estado"));
             }
         } catch (SQLException error) {
             this.conexao.rollback();
@@ -117,54 +127,14 @@ public class EnderecoControl {
         }
         return endereco;
     }
-    
-    public PreparedStatement setPreparedStatementString(PreparedStatement stmt, String info, int num) throws SQLException {
-    	stmt.setString(num, info);
-        
-        return stmt;
-    }
-    
-    public PreparedStatement setPreparedStatementInt(PreparedStatement stmt, Endereco endereco) throws SQLException {
-        stmt.setInt(5, endereco.getNumero());
-    	return stmt;
-    }
-    
-    public PreparedStatement setPreparedStatementLong(PreparedStatement stmt, Endereco endereco) throws SQLException {
-    	stmt.setLong(10, endereco.getId());
-    	return stmt;
-    }
-    
-    public int executePrepared(PreparedStatement stmt, Endereco endereco, String sqlQuery) throws ClassNotFoundException, SQLException {
-    	String bairro = endereco.getBairro();
-    	String cep = endereco.getCep();
-    	String cidade = endereco.getCidade();
-    	String complemento = endereco.getComplemento();
-    	String rua = endereco.getRua();
-    	String estado = endereco.getEstado().toString().replaceAll(" ", "_");
-    	String email = endereco.getEmail();
-    	String telefone = endereco.getTelefone();
-    	
-    	stmt = this.conexao().prepareStatement(sqlQuery);
-    	stmt = setPreparedStatementString(stmt,bairro, 1);
-    	stmt = setPreparedStatementString(stmt,cep, 2);
-    	stmt = setPreparedStatementString(stmt,cidade, 3);
-    	stmt = setPreparedStatementString(stmt,complemento, 4);
-    	stmt = setPreparedStatementString(stmt,rua, 6);
-    	stmt = setPreparedStatementString(stmt,estado, 7);
-    	stmt = setPreparedStatementString(stmt,email, 8);
-    	stmt = setPreparedStatementString(stmt,telefone, 9);
-
-    	stmt = setPreparedStatementInt(stmt, endereco);
-    	stmt = setPreparedStatementLong(stmt, endereco);
-    	return stmt.executeUpdate();
-    }
 
     public boolean update(Endereco endereco) throws SQLException, ClassNotFoundException {
         boolean atualizado = false;
         String sqlQuery = "UPDATE endereco SET bairro=?, cep=?, cidade=?, complemento=?, numero=?, rua=?, estado=?, email=?, telefone=? WHERE endereco.id_endereco = ?";
         PreparedStatement stmt = null;
         try {
-            atualizado = executePrepared(stmt, endereco, sqlQuery)  == 1;
+        	String[] dados = endereco.retornaEnde();
+            atualizado = executePrepared(stmt, dados, sqlQuery)  != null;
         } catch (SQLException error) {
             this.conexao.rollback();
             throw error;

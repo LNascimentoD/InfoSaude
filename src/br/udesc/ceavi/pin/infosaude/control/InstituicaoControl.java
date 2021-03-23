@@ -48,7 +48,7 @@ public class InstituicaoControl {
     	return ps;
     }
     
-    public void executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery, long id) throws ClassNotFoundException, SQLException {
+    public ResultSet executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery, long id) throws ClassNotFoundException, SQLException {
     	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
         stmt = getStatement().setPreparedLong(stmt, id, 1);
         stmt = getStatement().setPreparedString(stmt, dados[1], 2);
@@ -56,6 +56,11 @@ public class InstituicaoControl {
         stmt = getStatement().setPreparedString(stmt, dados[3], 4);
         
         stmt.executeUpdate();
+        return stmt.getGeneratedKeys();
+    }
+    
+    public long getResultLong(ResultSet rs, int index) throws SQLException {
+    	return rs.getLong(index);
     }
 
     public Long inserir(Instituicao instituicao, Endereco endereco) throws SQLException, ClassNotFoundException{
@@ -66,11 +71,10 @@ public class InstituicaoControl {
         try {
         	String[] dados = instituicao.retornaInstituicao();
         	long _id = endereco.getId();
-        	executePrepared(stmt, dados, sqlQuery, _id);
             
-            ResultSet rs = stmt.getGeneratedKeys();
+            ResultSet rs = executePrepared(stmt, dados, sqlQuery, _id);
             if (rs.next()) {
-                id = rs.getLong(1);
+                id = getResultLong(rs, 1);
             }
             
             this.conexao.commit();

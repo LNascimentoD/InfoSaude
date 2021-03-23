@@ -71,16 +71,13 @@ public class VacinaControl{
     public List<PublicoAlvo> obterPublicoAlvo(Long id_vacina) throws SQLException, ClassNotFoundException, IdadeMaximaMenorQueIdadeMinimaPublicoAlvoException {
         List<PublicoAlvo> listaPublicoAlvo = new ArrayList<>();
         String sqlQuery = "select pa.max_idade,pa.min_idade,pa.sexo from publico_alvo as pa natural inner join vacina where pa.id_vacina = ?";
-        PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery);
-        stmt.setLong(1, id_vacina);
-
-        stmt.execute();
-        ResultSet resultSet = stmt.getResultSet();
+        PreparedStatement stmt = null;
+        ResultSet resultSet = executePrepared(stmt, sqlQuery, id_vacina);
 
         while (resultSet.next()) {
-            int idadeMAX = resultSet.getInt("max_idade");
-            int idadeMIN = resultSet.getInt("min_idade");
-            Sexo sexo = Sexo.valueOf(resultSet.getString("sexo"));
+            int idadeMAX = getResultSetInt(resultSet, "max_idade");
+            int idadeMIN = getResultSetInt(resultSet, "min_idade");
+            Sexo sexo = Sexo.valueOf(getResultSetString(resultSet, "sexo"));
             PublicoAlvo publicoAlvo = new PublicoAlvo(idadeMAX, idadeMIN, sexo);
 
             listaPublicoAlvo.add(publicoAlvo);
@@ -157,10 +154,8 @@ public class VacinaControl{
         String sqlQuery1 = "select v.id_vacina, v.nome_vacina,c.dose_aplicada,c.observacoes,c.id_profissional, p.nome_pessoa as profissional, p.id_pessoa"
                 + "from vacina as v natural inner join carterinha as c natura inner join pessoa as p"
                 + "where c.id_usuario = ?";
-        PreparedStatement stmt = this.conexao().prepareStatement(sqlQuery1);
-        stmt.setLong(1, Main.usuario.getId());
-        stmt.execute();
-        ResultSet resultSet = stmt.getResultSet();
+        PreparedStatement stmt = null;
+        ResultSet resultSet = executePrepared(stmt, sqlQuery1, Main.usuario.getId());
 
         while (resultSet.next()) {
             long idVacina = getResultSetInt(resultSet, "id_vacina");
@@ -240,17 +235,13 @@ public class VacinaControl{
         int q = -1;
         try {
             if (id_campanha == -1 && observacoes.equals("")) {
-                stmt = this.conexao().prepareStatement(sqlQuerySIMPLE);
-                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
+                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes, sqlQuerySIMPLE);
             } else if (id_campanha != -1 && observacoes.equals("")) {
-                stmt = this.conexao().prepareStatement(sqlQuery1ComCampanha);
-                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
+                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes, sqlQuery1ComCampanha);
             } else if (id_campanha == -1 && !observacoes.equals("")) {
-                stmt = this.conexao().prepareStatement(sqlQueryComOBS);
-                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
+                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes, sqlQueryComOBS);
             } else if (id_campanha != -1 && !observacoes.equals("")) {
-                stmt = this.conexao().prepareStatement(sqlQueryComCampanhaEOBS);
-                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes);
+                this.ps.criaPS(stmt, id_vacina, id_usuario, id_campanha, id_profissional, dose, observacoes, sqlQueryComCampanhaEOBS);
             }
             stmt.executeQuery();
             ResultSet rs = stmt.getResultSet();
@@ -321,9 +312,9 @@ public class VacinaControl{
         return lista;
     }
     
-    public ResultSet executePrepared(PreparedStatement stmt, String sql, long id_usuario) throws ClassNotFoundException, SQLException {
+    public ResultSet executePrepared(PreparedStatement stmt, String sql, long id) throws ClassNotFoundException, SQLException {
     	stmt = this.conexao().prepareStatement(sql);
-    	stmt = this.ps.setPreparedLong(stmt, id_usuario, 1);
+    	stmt = this.ps.setPreparedLong(stmt, id, 1);
         ResultSet rs = stmt.executeQuery();
 		return rs;
     }

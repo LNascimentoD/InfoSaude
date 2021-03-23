@@ -37,7 +37,7 @@ public class PreparaStatement {
     	return stmt;
     }
     
-    public PreparedStatement executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery) throws ClassNotFoundException, SQLException {
+    public ResultSet executePrepared(PreparedStatement stmt, String[] dados, String sqlQuery) throws ClassNotFoundException, SQLException {
     	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
         stmt = setPreparedLong(stmt, Long.parseLong(dados[0]), 1);
         stmt = setPreparedLong(stmt, Long.parseLong(dados[1]), 2);
@@ -46,7 +46,7 @@ public class PreparaStatement {
         stmt = setPreparedString(stmt, dados[4], 5);
         
         stmt.executeUpdate();
-        return stmt;
+        return stmt.getGeneratedKeys();
     }
     
     public ResultSet executePrepared(PreparedStatement stmt, String sqlQuery1) throws ClassNotFoundException, SQLException {
@@ -68,8 +68,10 @@ public class PreparaStatement {
         return resultSet;
     }
     
-    public PreparedStatement criaPS(PreparedStatement stmt, Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes) throws SQLException {
-        stmt = setPreparedLong(stmt, id_usuario, 1);
+    public PreparedStatement criaPS(PreparedStatement stmt, Long id_vacina, Long id_usuario, Long id_campanha, Long id_profissional, int dose, String observacoes, String sql) throws SQLException, ClassNotFoundException {
+    	stmt = this.conexao().prepareStatement(sql);
+    	
+    	stmt = setPreparedLong(stmt, id_usuario, 1);
         stmt = setPreparedLong(stmt, id_vacina, 2);
     	stmt = setPreparedLong(stmt, id_profissional, 3);
     	stmt = setPreparedDate(stmt, new java.sql.Date(Calendar.getInstance().getTimeInMillis()), 4);

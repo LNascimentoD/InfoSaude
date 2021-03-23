@@ -79,11 +79,8 @@ public class CampanhaControl {
         	dados[1] = "" + dataInicio;
         	dados[1] = "" + dataFim;
         	dados[1] = "" + slogan;
-        	
             
-            stmt = getStatement().executePrepared(stmt, dados, sqlQuery);
-            
-            ResultSet rs = stmt.getGeneratedKeys();
+            ResultSet rs = getStatement().executePrepared(stmt, dados, sqlQuery);
             if (rs.next()) {
                 id = getResultados().getResultLong(rs, 1);
             }

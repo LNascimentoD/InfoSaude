@@ -18,6 +18,13 @@ public class UsuarioStatement extends PreparaStatement{
     	stmt = this.conexao().prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
     	stmt = setPreparedLong(stmt, userId, 1);
     	stmt.executeUpdate();
+        
     	return stmt;
     }
+	
+	public ResultSet getResultSET(String sqlQuery, PreparedStatement stmt, long userId) throws SQLException, ClassNotFoundException {
+		stmt = executePrepared(sqlQuery, stmt, userId);
+		ResultSet rs = stmt.getGeneratedKeys();
+    	return rs;
+	}
 }

@@ -16,7 +16,7 @@ import java.sql.Statement;
  *
  * @author lucas
  */
-public class UsuarioControl {
+public class UsuarioControl extends UsuarioStatement{
 
 	private Connection conexao;
     
@@ -30,8 +30,7 @@ public class UsuarioControl {
         PreparedStatement stmt = null;
         long userId = usuario.getId();
         try {
-        	stmt = getStatement().executePrepared(sqlQuery, stmt, userId);
-            ResultSet rs = stmt.getGeneratedKeys();
+            ResultSet rs = getResultSET(sqlQuery, stmt, userId);
             if (rs.next()) {
                 id = rs.getLong("id_usuario");
             }
@@ -63,11 +62,6 @@ public class UsuarioControl {
     	return pessoa;
     }
     
-    public UsuarioStatement getStatement() {
-    	UsuarioStatement ps = new UsuarioStatement();
-    	return ps;
-    }
-    
     public long getResultLong(ResultSet rs, int index) throws SQLException {
     	return rs.getLong(index);
     }
@@ -81,7 +75,7 @@ public class UsuarioControl {
         PreparedStatement stmt = null;
         Pessoa pessoa = null;
         try {
-            ResultSet rs = getStatement().executePrepared(stmt, cpf_usuario, sqlQuery);
+            ResultSet rs = executePrepared(stmt, cpf_usuario, sqlQuery);
             if (rs.next()) {
                 pessoa = new Pessoa();
                 long id = getResultLong(rs, 1);

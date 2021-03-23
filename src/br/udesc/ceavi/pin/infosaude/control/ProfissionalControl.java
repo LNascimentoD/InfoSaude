@@ -16,17 +16,12 @@ import java.sql.Statement;
  *
  * @author lucas
  */
-public class ProfissionalControl {
+public class ProfissionalControl extends ProfissionalStatement{
 
 	private Connection conexao;
     
     public Connection conexao() throws ClassNotFoundException, SQLException{
     	return this.conexao = ConexaoPostgresJDBC.getConnection();
-    }
-    
-    public ProfissionalStatement getStatement() {
-    	ProfissionalStatement ps = new ProfissionalStatement();
-    	return ps;
     }
     
     public long getResultLong(ResultSet rs, String index) throws SQLException {
@@ -40,7 +35,7 @@ public class ProfissionalControl {
         PreparedStatement stmt = null;
         try {
         	long _id = instituicao.getId();
-            stmt = getStatement().executePrepared2(stmt, _id, sqlQuery);
+            stmt = executePrepared2(stmt, _id, sqlQuery);
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 id = getResultLong(rs, "id_instituicao");
@@ -64,16 +59,6 @@ public class ProfissionalControl {
 
         return id;
     }
-    
-    public ResultSet executePrepared(PreparedStatement stmt, String sqlQuery, String login, String senha) throws ClassNotFoundException, SQLException {
-    	stmt = this.conexao().prepareStatement(sqlQuery);
-    	stmt = getStatement().setPreparedString(stmt, login, 1);
-    	stmt = getStatement().setPreparedString(stmt, senha, 2);
-        stmt.executeQuery();
-        ResultSet rs = stmt.getResultSet();
-        
-        return rs;
-    }
 
     public Long getAcessoProfissional(String login, String senha) throws SQLException, ClassNotFoundException {
         Long id_profissional = -1l;
@@ -81,7 +66,9 @@ public class ProfissionalControl {
         PreparedStatement stmt = null;
         int q = -1;
         try {
-            ResultSet rs = executePrepared(stmt, sqlQuery, login, senha);       
+        	stmt = executePrepared(stmt, sqlQuery, login, senha); 
+        	stmt.executeQuery();
+            ResultSet rs = stmt.getResultSet();
             while (rs.next()) {
                 id_profissional = getResultLong(rs, "id_profissional");
             }

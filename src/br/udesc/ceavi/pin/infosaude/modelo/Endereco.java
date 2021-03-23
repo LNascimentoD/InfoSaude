@@ -41,6 +41,19 @@ public class Endereco {
         this.telefone = telefone;
         this.estado = estado;
     }
+    
+    public Endereco(long id, String bairro, String cep, String cidade, String complemento, String email, int num, String rua, String telefone, Estado estado) {
+        this.id = id;
+    	this.bairro = bairro;
+        this.cep = cep;
+        this.cidade = cidade;
+        this.complemento = complemento;
+        this.email = email;
+        this.numero = num;
+        this.rua = rua;
+        this.telefone = telefone;
+        this.estado = estado;
+    }
 
     public String[] retornaEnde() {
     	String[] ende = {};

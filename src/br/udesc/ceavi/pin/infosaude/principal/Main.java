@@ -36,6 +36,7 @@ public class Main implements Runnable {
             EnderecoControl controladoEndereco = new EnderecoControl();
             usuario.setEndereco(controladoEndereco.getEndereco(id_endereco));
         } catch (ClassNotFoundException | SQLException ex) {}
+        
         if (usuario instanceof Usuario) {
             Carterinha carterinha = new Carterinha(((Usuario) usuario));
             try {
